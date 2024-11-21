@@ -1,4 +1,4 @@
-# 🎮 Sistema de Perguntas e Pontuação para Múltiplos Jogadores
+# 🎮 Sistema de Quiz Game
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.8+-blue.svg" alt="Python Version">
@@ -9,63 +9,62 @@
 </p>
 
 ## 📝 Descrição
-Sistema dinâmico de perguntas projetado para múltiplos jogadores simultâneos. Cada pergunta possui um nível de dificuldade específico, com pontuação ajustada proporcionalmente. O objetivo é proporcionar uma experiência interativa e educativa, incentivando os participantes a testarem seus conhecimentos em diversos temas.
+Sistema de quiz interativo desenvolvido em Python utilizando CustomTkinter para interface gráfica e SQLite para persistência de dados. O sistema permite gerenciar perguntas, jogadores e configurações do jogo, oferecendo uma experiência educativa e divertida.
 
 ### 🎯 Objetivos do Projeto
-- 📚 Promover aprendizado interativo
-- 🏆 Estimular competição saudável
-- 📊 Avaliar conhecimento de forma dinâmica
-- 🤝 Facilitar interação entre participantes
+- 📚 Criar um sistema de quiz interativo e educativo
+- 🎨 Implementar interface gráfica moderna e intuitiva
+- 💾 Gerenciar dados de forma eficiente com SQLite
+- 🔄 Permitir configurações flexíveis do jogo
 
 ## ✨ Principais Características
 
-### 👥 Sistema Multiplayer
-- Suporte para até 10 jogadores simultâneos
-- Sistema de turnos inteligente
-- Ranking em tempo real
-- Perfis personalizáveis
+### 🎮 Sistema de Jogo
+- Interface gráfica moderna com CustomTkinter
+- Sistema de pontuação baseado em tempo e dificuldade
+- Gerenciamento de múltiplos jogadores
+- Configurações personalizáveis
 
-### 📊 Níveis de Dificuldade
-| Nível | Pontos Base | Multiplicador | Tempo (s) |
-|-------|-------------|---------------|-----------|
-| Fácil | 100 | 1.0 | 45 |
-| Médio | 200 | 1.5 | 30 |
-| Difícil | 300 | 2.0 | 20 |
-| Expert | 500 | 3.0 | 15 |
+### 📊 Estrutura de Dados
+```sql
+-- Tabela de Jogadores
+CREATE TABLE jogadores (
+    id INTEGER PRIMARY KEY,
+    nome TEXT NOT NULL,
+    pontos INTEGER DEFAULT 0,
+    acertos INTEGER DEFAULT 0,
+    erros INTEGER DEFAULT 0
+);
 
-### 🎯 Sistema de Pontuação
-- **Base**: Pontuação inicial da questão
-- **Multiplicador**: Baseado na dificuldade
-- **Bônus de Tempo**: Até 50% extra
-- **Streak Bonus**: Bônus por sequência de acertos
+-- Tabela de Perguntas
+CREATE TABLE perguntas (
+    id INTEGER PRIMARY KEY,
+    pergunta TEXT NOT NULL,
+    opcao_a TEXT,
+    opcao_b TEXT,
+    opcao_c TEXT,
+    opcao_d TEXT,
+    opcao_e TEXT,
+    resposta_certa INTEGER,
+    pontos INTEGER
+);
 
-### 🎨 Interface Moderna
-- Design responsivo
-- Temas claro/escuro
-- Animações suaves
-- Feedback visual intuitivo
-
-### 💾 Gerenciamento de Dados
-- Backup automático
-- Exportação de estatísticas
-- Histórico detalhado
-- Sistema de achievements
+-- Tabela de Configuração
+CREATE TABLE configuracao (
+    id INTEGER PRIMARY KEY,
+    numero_questoes INTEGER DEFAULT 5,
+    tempo_questao INTEGER DEFAULT 30
+);
+```
 
 ## 🚀 Começando
 
 ### 📋 Pré-requisitos
 
 #### 💻 Sistema
-- Sistema Operacional: Windows 10+, Linux ou macOS
-- Memória RAM: 4GB+ recomendado
-- Espaço em Disco: 100MB mínimo
-- Python 3.8 ou superior
-
-#### 🛠️ Ferramentas
-- Git
 - Python 3.8+
 - SQLite3
-- Editor de código (VS Code recomendado)
+- Bibliotecas Python necessárias
 
 ### 📦 Instalação
 
@@ -75,158 +74,86 @@ git clone https://github.com/seu-usuario/quiz-game.git
 cd quiz-game
 ```
 
-2. **Configure o Ambiente Virtual**
+2. **Instale as Dependências**
 ```bash
-python -m venv venv
-source venv/bin/activate  # Linux/macOS
-venv\Scripts\activate     # Windows
+pip install customtkinter
+pip install pillow
+pip install pandas
 ```
 
-3. **Instale as Dependências**
-```bash
-pip install -r requirements.txt
-```
+3. **Configure o Banco de Dados**
+- Crie um diretório 'database' no projeto
+- O banco será inicializado automaticamente na primeira execução
 
-4. **Configure o Banco de Dados**
-```bash
-python scripts/setup_database.py
-```
+## 🧮 Estrutura do Projeto
 
-### ⚙️ Configuração
+### 📁 Arquivos Principais
+- `game_quiz.py`: Arquivo principal com a interface do jogo
+- `configuracao.py`: Gerenciamento de configurações
+- `main.py`: Implementação do quiz
 
-#### 🗄️ Estrutura do Banco de Dados
-
-```sql
--- Tabela de Jogadores
-CREATE TABLE jogadores (
-    id INTEGER PRIMARY KEY,
-    nome TEXT NOT NULL,
-    pontos INTEGER DEFAULT 0,
-    nivel INTEGER DEFAULT 1,
-    ultima_atividade DATETIME
-);
-
--- Tabela de Perguntas
-CREATE TABLE perguntas (
-    id INTEGER PRIMARY KEY,
-    pergunta TEXT NOT NULL,
-    dificuldade INTEGER,
-    categoria TEXT,
-    pontos INTEGER
-);
-```
-
-## 🧮 Análise Técnica
-
-### 🔄 Ciclo de Vida do Sistema
-
+### 🔄 Fluxo do Sistema
 ```mermaid
 graph TD
-    A[Inicialização] --> B[Carregamento de Dados]
-    B --> C[Interface Principal]
-    C --> D[Seleção de Modo]
-    D --> E[Execução do Quiz]
-    E --> F[Cálculo de Pontuação]
-    F --> G[Atualização de Ranking]
-    G --> H[Feedback]
-    H --> C
+    A[Menu Principal] --> B[Iniciar Jogo]
+    A --> C[Configurações]
+    A --> D[Gerenciar Jogador]
+    A --> E[Sair]
+    C --> F[Gerenciar Questões]
+    C --> G[Configurar Jogo]
+    C --> H[Voltar]
 ```
 
-### ⚡ Performance
+### ⚙️ Classes Principais
 
-#### 📊 Métricas de Desempenho
-| Operação | Tempo Médio | Complexidade |
-|----------|-------------|--------------|
-| Carregamento | 0.5s | O(1) |
-| Busca | 0.1s | O(log n) |
-| Atualização | 0.2s | O(1) |
-| Ranking | 0.3s | O(n log n) |
+#### MenuPrincipal
+- Gerencia a interface principal
+- Controla navegação entre telas
+- Mantém conexão com banco de dados
 
-#### 🔍 Otimizações
-- Indexação de consultas frequentes
-- Cache em memória
-- Lazy loading de recursos
-- Compressão de dados
+#### Questionario
+- Implementa lógica do quiz
+- Gerencia tempo e pontuação
+- Controla fluxo de perguntas
 
-### 🛡️ Segurança
+#### PaginaResposta
+- Mostra resultados
+- Calcula pontuação final
+- Permite reiniciar ou sair
 
-#### 🔒 Medidas Implementadas
-- Validação de entrada
-- Sanitização SQL
-- Rate limiting
-- Logs de atividade
+## 🛠️ Desenvolvimento
 
-## 🎯 Funcionalidades Detalhadas
+### 🔧 Configuração do Ambiente de Desenvolvimento
+1. Configure seu editor (VS Code recomendado)
+2. Instale as extensões Python necessárias
+3. Configure o linter e formatter
 
-### 📱 Modos de Jogo
-1. **Solo**
-   - Prática individual
-   - Recordes pessoais
-   - Modo tempo livre
-
-2. **Multiplayer**
-   - Até 10 jogadores
-   - Competição em tempo real
-   - Chat integrado
-
-3. **Torneio**
-   - Eliminatórias
-   - Rankings semanais
-   - Prêmios virtuais
-
-### 📊 Sistema de Progresso
-- Níveis de experiência
-- Conquistas desbloqueáveis
-- Estatísticas detalhadas
-- Histórico de partidas
+### 📝 Guidelines de Código
+- Use PEP 8 para estilo de código
+- Documente funções e classes
+- Mantenha commits organizados
 
 ## 🤝 Contribuindo
 
-### 📝 Processo de Contribuição
-1. 🍴 Fork o projeto
-2. 🔧 Crie sua Feature Branch
-3. 💾 Commit suas mudanças
-4. 📤 Push para a Branch
-5. 🔀 Abra um Pull Request
-
-### 📋 Guidelines
-- Siga o estilo de código
-- Documente alterações
-- Adicione testes
-- Mantenha commits organizados
-
-## 📚 Documentação
-
-### 📖 Wiki
-- Guia de início rápido
-- Manual do usuário
-- Documentação técnica
-- FAQ
-
-### 🔧 API
-- Endpoints REST
-- Webhooks
-- Documentação Swagger
-- Exemplos de uso
+1. Fork o projeto
+2. Crie sua Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit suas mudanças (`git commit -m 'Add: nova funcionalidade'`)
+4. Push para a Branch (`git push origin feature/AmazingFeature`)
+5. Abra um Pull Request
 
 ## 📝 Licença
 
 Este projeto está sob a licença MIT - veja o arquivo [LICENSE.md](LICENSE.md) para detalhes.
 
-## 👥 Autores e Contribuidores
+## 👥 Autores
 
-### 👨‍💻 Desenvolvedores Principais
-* **Seu Nome** - *Arquiteto* - [SeuUsuario](https://github.com/SeuUsuario)
-
-### 🤝 Contribuidores
-* Lista de contribuidores do projeto
+* **Seu Nome** - *Desenvolvedor Principal* - [SeuUsuario](https://github.com/SeuUsuario)
 
 ## 🙏 Agradecimentos
 
-* CustomTkinter pela excelente biblioteca
+* CustomTkinter pela biblioteca
 * Comunidade Python
 * Contribuidores do projeto
-* Usuários beta-testers
 
 ---
 ⌨️ com ❤️ por [seu-usuario](https://github.com/seu-usuario) 😊
