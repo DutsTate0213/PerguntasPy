@@ -13,9 +13,28 @@ Sistema de quiz interativo desenvolvido em Python utilizando CustomTkinter para 
 
 ### 🎯 Objetivos do Projeto
 - 📚 Criar um sistema de quiz interativo e educativo
+  - Sistema de perguntas e respostas múltipla escolha
+  - Feedback imediato de acertos e erros
+  - Diferentes níveis de dificuldade
+  - Sistema de pontuação dinâmico
+
 - 🎨 Implementar interface gráfica moderna e intuitiva
+  - Design moderno com CustomTkinter
+  - Navegação fluida entre telas
+  - Feedback visual das ações
+  - Temporizador visual para questões
+
 - 💾 Gerenciar dados de forma eficiente com SQLite
-- 🔄 Permitir configurações flexíveis do jogo
+  - Armazenamento de perguntas e respostas
+  - Sistema de pontuação por jogador
+  - Histórico de partidas
+  - Configurações personalizáveis do jogo
+
+- 🔄 Sistema de Gerenciamento Completo
+  - Gerenciamento de jogadores (criar, editar, deletar)
+  - Controle de questões (adicionar, editar, remover)
+  - Configurações ajustáveis (tempo, número de questões)
+  - Sistema de ranking e pontuação
 
 ## ✨ Principais Características
 
@@ -64,7 +83,11 @@ CREATE TABLE configuracao (
 #### 💻 Sistema
 - [Python 3.8+](https://www.python.org/downloads/)
 - [SQLite3](https://www.sqlite.org/download.html)
-- Bibliotecas Python necessárias
+- Bibliotecas Python necessárias:
+  - [CustomTkinter](https://customtkinter.tomschimansky.com/)
+  - [Pillow (PIL)](https://pillow.readthedocs.io/en/stable/)
+  - [Pandas](https://pandas.pydata.org/docs/)
+  - [Tkinter](https://docs.python.org/3/library/tkinter.html) (incluído no Python)
 
 ### 📦 Instalação
 

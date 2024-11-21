@@ -124,7 +124,7 @@ class PaginaQuestoes:
         ctk.CTkLabel(header_frame, text="Questão", font=("Arial", 14, "bold")).grid(
             row=0, column=1, padx=10, sticky="w")
         
-        ctk.CTkLabel(header_frame, text="Ações", font=("Arial", 14, "bold"), width=acoes_width).grid(
+        ctk.CTkLabel(header_frame, text="Editar", font=("Arial", 14, "bold"), width=acoes_width).grid(
             row=0, column=2, padx=(0, 20))
 
         # Linha separadora
@@ -209,7 +209,6 @@ class PaginaQuestoes:
             ("Alternativa D:", "entrada_alternativa_d"),
             ("Alternativa E:", "entrada_alternativa_e"),
             ("Resposta Certa:", "entrada_resposta_certa"),
-            ("Pontos:", "entrada_pontos")
         ]
 
         for i, (label_text, _) in enumerate(campos):
@@ -219,6 +218,34 @@ class PaginaQuestoes:
             entrada = ctk.CTkEntry(campos_frame, width=600)
             entrada.grid(row=i, column=1, padx=(10, 20), pady=10)
             setattr(self, f"entrada_{i}", entrada)  # Armazena referência para uso posterior
+
+        # Adicionar frame para os radio buttons
+        dificuldade_frame = ctk.CTkFrame(campos_frame, fg_color="transparent")
+        dificuldade_frame.grid(row=len(campos), column=0, columnspan=2, pady=20)
+
+        # Label para dificuldade
+        label_dificuldade = ctk.CTkLabel(dificuldade_frame, text="Nível de Dificuldade:")
+        label_dificuldade.grid(row=0, column=0, padx=(0, 10))
+
+        # Variável para armazenar a seleção
+        self.dificuldade_var = ctk.StringVar(value="facil")
+
+        # Dicionário de dificuldades e pontos
+        dificuldades = {
+            "Fácil (5 pts)": "facil",
+            "Médio (10 pts)": "medio",
+            "Difícil (20 pts)": "dificil",
+            "Especialista (40 pts)": "especialista",
+            "Extremo (80 pts)": "extremo"
+        }
+
+        # Criar radio buttons horizontalmente
+        for i, (texto, valor) in enumerate(dificuldades.items()):
+            radio = ctk.CTkRadioButton(dificuldade_frame, 
+                                     text=texto, 
+                                     variable=self.dificuldade_var, 
+                                     value=valor)
+            radio.grid(row=0, column=i+1, padx=10)
 
         # Frame para botões
         botoes_frame = ctk.CTkFrame(main_frame, fg_color="transparent")
@@ -265,7 +292,6 @@ class PaginaQuestoes:
             ("Alternativa D:", questao_atual[5]),
             ("Alternativa E:", questao_atual[6]),
             ("Resposta Certa:", resposta_letra),
-            ("Pontos:", questao_atual[8])
         ]
 
         for i, (label_text, valor) in enumerate(campos):
@@ -276,6 +302,46 @@ class PaginaQuestoes:
             entrada.insert(0, str(valor))
             entrada.grid(row=i, column=1, padx=(10, 20), pady=10)
             setattr(self, f"entrada_{i}", entrada)
+
+        # Adicionar frame para os radio buttons
+        dificuldade_frame = ctk.CTkFrame(campos_frame, fg_color="transparent")
+        dificuldade_frame.grid(row=len(campos), column=0, columnspan=2, pady=20)
+
+        # Label para dificuldade
+        label_dificuldade = ctk.CTkLabel(dificuldade_frame, text="Nível de Dificuldade:")
+        label_dificuldade.grid(row=0, column=0, padx=(0, 10))
+
+        # Variável para armazenar a seleção
+        self.dificuldade_var = ctk.StringVar()
+
+        # Dicionário de dificuldades e pontos
+        dificuldades = {
+            "Fácil (5 pts)": "facil",
+            "Médio (10 pts)": "medio",
+            "Difícil (20 pts)": "dificil",
+            "Especialista (40 pts)": "especialista",
+            "Extremo (80 pts)": "extremo"
+        }
+
+        # Mapear pontos para dificuldade
+        pontos_para_dificuldade = {
+            5: "facil",
+            10: "medio",
+            20: "dificil",
+            40: "especialista",
+            80: "extremo"
+        }
+        
+        # Definir valor inicial baseado nos pontos atuais
+        self.dificuldade_var.set(pontos_para_dificuldade.get(questao_atual[8], "facil"))
+
+        # Criar radio buttons horizontalmente
+        for i, (texto, valor) in enumerate(dificuldades.items()):
+            radio = ctk.CTkRadioButton(dificuldade_frame, 
+                                     text=texto, 
+                                     variable=self.dificuldade_var, 
+                                     value=valor)
+            radio.grid(row=0, column=i+1, padx=10)
 
         # Frame para botões
         botoes_frame = ctk.CTkFrame(main_frame, fg_color="transparent")
@@ -327,13 +393,16 @@ class PaginaQuestoes:
         return True
 
     def salvar_questao(self, enunciado, alternativa_a, alternativa_b, alternativa_c, 
-                      alternativa_d, alternativa_e, resposta_certa, pontos):
+                      alternativa_d, alternativa_e, resposta_certa):
         # Validar a resposta
         if not self.validar_resposta(resposta_certa):
             return
         
         # Converter a letra em número
         resposta_numero = self.letra_para_numero(resposta_certa)
+        
+        # Obter pontos baseado na dificuldade selecionada
+        pontos = self.get_pontos_por_dificuldade(self.dificuldade_var.get())
         
         self.cursor.execute("""
             INSERT INTO perguntas (pergunta, opcao_a, opcao_b, opcao_c, opcao_d, opcao_e, 
@@ -351,13 +420,16 @@ class PaginaQuestoes:
         self.voltar()
     
     def salvar_edicao(self, numero, enunciado, alternativa_a, alternativa_b, alternativa_c, 
-                      alternativa_d, alternativa_e, resposta_certa, pontos):
+                      alternativa_d, alternativa_e, resposta_certa):
         # Validar a resposta
         if not self.validar_resposta(resposta_certa):
             return
         
         # Converter a letra em número
         resposta_numero = self.letra_para_numero(resposta_certa)
+        
+        # Obter pontos baseado na dificuldade selecionada
+        pontos = self.get_pontos_por_dificuldade(self.dificuldade_var.get())
         
         id_questao = self.questoes[numero][0]
         
@@ -390,6 +462,16 @@ class PaginaQuestoes:
     def __del__(self):
         if hasattr(self, 'conexao'):
             self.conexao.close()
+
+    def get_pontos_por_dificuldade(self, dificuldade):
+        pontos = {
+            "facil": 5,
+            "medio": 10,
+            "dificil": 20,
+            "especialista": 40,
+            "extremo": 80
+        }
+        return pontos.get(dificuldade, 5)  # retorna 5 como padrão se a dificuldade não for encontrada
 
 class PaginaConfiguracao:
     def __init__(self, master):
@@ -540,7 +622,7 @@ class PaginaJogador:
         header_frame = ctk.CTkFrame(scrollable_frame, fg_color="transparent")
         header_frame.grid(row=0, column=0, columnspan=6, sticky="ew", padx=20, pady=(0, 10))
 
-        headers = ["Nº", "Nome", "Pontos", "Acertos", "Erros", "Ações"]
+        headers = ["Nº", "Nome", "Pontos", "Acertos", "Erros", "Editar"]
         widths = [60, 200, 100, 100, 100, 100]
         
         for i, (header, width) in enumerate(zip(headers, widths)):
