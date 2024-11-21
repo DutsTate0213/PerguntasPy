@@ -100,12 +100,6 @@ class MenuPrincipal:
 
         self.btn_iniciar = ctk.CTkButton(self.master, text='Iniciar', command=self.iniciar_questionario, **button_configs) # faz o desempacotamento do discionario declarado acima
         self.btn_iniciar.place(relx=0.5, rely=0.4, anchor='center')
-
-        self.btn_configuracao = ctk.CTkButton(self.master, text='Configuração', command=self.abrir_configuracao, **button_configs)
-        self.btn_configuracao.place(relx=0.5, rely=0.55, anchor='center')
-
-        # self.btn_aluno_aleatorio = ctk.CTkButton(self.master, text='Selecionar Aluno', command=self.abrir_selecao_aluno, **button_configs)
-        # self.btn_aluno_aleatorio.place(relx=0.5, rely=0.7, anchor='center')
         
         self.btn_sair = ctk.CTkButton(self.master, text='Sair', command=self.master.quit, **button_configs)
         self.btn_sair.place(relx=0.5, rely=0.85, anchor='center')
@@ -115,100 +109,6 @@ class MenuPrincipal:
         for widget in self.master.winfo_children():
             widget.destroy()
         Questionario(self.master)
-
-        # Limpa a janela atual e abre a tela de configuração
-    def abrir_configuracao(self):
-        for widget in self.master.winfo_children():
-            widget.destroy()
-        Configuracao(self.master)
-
-    # Função para abrir a pagina de adicionar jogador
-    # def abrir_selecao_jogador(self):    
-    #     largura_tela = self.master.winfo_screenwidth()
-    #     altura_tela = self.master.winfo_screenheight()
-    #     janela_width, janela_height = 800, 500
-    #     pos_x = (largura_tela // 5) - (janela_width // 2)
-    #     pos_y = (altura_tela // 3) - (janela_height // 3)
-    #     janela_selecao = ctk.CTkToplevel(self.master)
-    #     janela_selecao.title("Adicionar jogador")
-    #     janela_selecao.geometry(f"{janela_width}x{janela_height}+{pos_x}+{pos_y}")
-    #     janela_selecao.resizable(False, False)
-        
-    
-
-    # btn_adicionar_jogador = ctk.CTkButton(self.master, text="Adicionar jogador", command=self.adicionar_jogador, **button_configs)
-    # btn_adicionar_jogador.place(relx=0.5, rely=0.7, anchor='center')
-# Pagina onde vai ficar as configurações de numero de questões e tempo por questão
-class Configuracao:
-    def __init__(self, master):
-        self.master = master
-        self.master.configure(fg_color=COR_FUNDO)
-
-        # Título da página
-        self.lb_titulo = ctk.CTkLabel(self.master, text="Configuração", 
-                                      font=(FONTE_PADRAO, TAMANHO_FONTE_TITULO), text_color=COR_TEXTO)
-        self.lb_titulo.place(relx=0.5, rely=0.2, anchor='center')
-
-        # Label e entrada para o número de questões
-        self.lb_num_questoes = ctk.CTkLabel(self.master, text="Número de questões:", 
-                                            font=(FONTE_PADRAO, TAMANHO_FONTE_NORMAL), text_color=COR_TEXTO)
-        self.lb_num_questoes.place(relx=0.3, rely=0.4, anchor='e')
-
-        self.entry_num_questoes = ctk.CTkEntry(self.master, width=100, height=40, font=(FONTE_PADRAO, TAMANHO_FONTE_NORMAL))
-        self.entry_num_questoes.place(relx=0.35, rely=0.4, anchor='w')
-        self.entry_num_questoes.insert(0, NUM_QUESTOES)
-
-        # Label e entrada para o tempo por questão
-        self.lb_tempo_questao = ctk.CTkLabel(self.master, text="Tempo por questão (segundos):", 
-                                             font=(FONTE_PADRAO, TAMANHO_FONTE_NORMAL), text_color=COR_TEXTO)
-        self.lb_tempo_questao.place(relx=0.3, rely=0.5, anchor='e')
-
-        self.entry_tempo_questao = ctk.CTkEntry(self.master, width=100, height=40, font=(FONTE_PADRAO, TAMANHO_FONTE_NORMAL))
-        self.entry_tempo_questao.place(relx=0.35, rely=0.5, anchor='w')
-        self.entry_tempo_questao.insert(0, TEMPO_QUESTAO)
-
-        # Configuração do botão da pagina Configuração usando um discionario
-        button_configs = {
-            'width': BUTTON_WIDTH,
-            'height': BUTTON_HEIGHT,
-            'fg_color': COR_BOTAO,
-            'text_color': COR_TEXTO_BOTAO,
-            'hover_color': COR_BOTAO_HOVER,
-            'font': (FONTE_PADRAO, TAMANHO_FONTE_NORMAL),
-            'corner_radius': CORNER_RADIUS
-        }
-
-        self.btn_salvar = ctk.CTkButton(self.master, text="Salvar", command=self.salvar_configuracao, **button_configs) # desempacotamento do discionario
-        self.btn_salvar.place(relx=0.3, rely=0.7, anchor='center')
-
-        self.btn_voltar = ctk.CTkButton(self.master, text="Voltar", command=self.voltar_menu, **button_configs)
-        self.btn_voltar.place(relx=0.7, rely=0.7, anchor='center')
-
-    # Função onde vai verificar se o tamanho indicado na entry é um numero valido
-    # Se for valido ele salva como NUM_QUESTOES o controlador de numero de questões
-    def salvar_configuracao(self):
-        try:
-            num_questoes = int(self.entry_num_questoes.get())
-            tempo_questao = int(self.entry_tempo_questao.get())
-            
-            if 1 <= num_questoes <= len(pergunta) and tempo_questao > 0:
-                global NUM_QUESTOES, TEMPO_QUESTAO
-                NUM_QUESTOES = num_questoes
-                TEMPO_QUESTAO = tempo_questao
-                self.voltar_menu()
-            else:
-                if not (1 <= num_questoes <= len(pergunta)):
-                    messagebox.showerror("Erro", f"O número de questões deve estar entre 1 e {len(pergunta)}")
-                if tempo_questao <= 0:
-                    messagebox.showerror("Erro", "O tempo por questão deve ser maior que 0 segundos")
-        except ValueError:
-            messagebox.showerror("Erro", "Por favor, insira números válidos")
-
-    def voltar_menu(self):
-        # Limpa a janela e volta para o menu principal
-        for widget in self.master.winfo_children():
-            widget.destroy()
-        MenuPrincipal(self.master)
 
 # Classe onde vai ficar a janela onde serão respondidas as questões
 class Questionario:
