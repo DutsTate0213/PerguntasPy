@@ -62,8 +62,8 @@ CREATE TABLE configuracao (
 ### 📋 Pré-requisitos
 
 #### 💻 Sistema
-- Python 3.8+
-- SQLite3
+- [Python 3.8+](https://www.python.org/downloads/)
+- [SQLite3](https://www.sqlite.org/download.html)
 - Bibliotecas Python necessárias
 
 ### 📦 Instalação
@@ -81,9 +81,15 @@ pip install pillow
 pip install pandas
 ```
 
-3. **Configure o Banco de Dados**
-- Crie um diretório 'database' no projeto
-- O banco será inicializado automaticamente na primeira execução
+3. **Configure o SQLite**
+- Para Windows: Baixe o [Precompiled Binaries for Windows](https://www.sqlite.org/download.html)
+- Para Linux: `sudo apt-get install sqlite3`
+- Para macOS: SQLite já vem instalado
+
+4. **Configure o Python**
+- Baixe a versão mais recente do [Python](https://www.python.org/downloads/)
+- Durante a instalação, marque a opção "Add Python to PATH"
+- Verifique a instalação com `python --version`
 
 ## 🧮 Estrutura do Projeto
 
