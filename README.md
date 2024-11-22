@@ -2,7 +2,6 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.8+-blue.svg" alt="Python Version">
-  <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License">
   <img src="https://img.shields.io/badge/Status-Em%20Desenvolvimento-yellow.svg" alt="Status">
   <img src="https://img.shields.io/badge/CustomTkinter-5.1.2-purple.svg" alt="CustomTkinter">
   <img src="https://img.shields.io/badge/SQLite-3.0+-orange.svg" alt="SQLite">
