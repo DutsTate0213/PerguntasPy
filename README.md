@@ -77,8 +77,7 @@ CREATE TABLE perguntas (
     opcao_d TEXT,
     opcao_e TEXT,
     resposta_certa INTEGER,
-    pontos INTEGER,
-    dificuldade INTEGER DEFAULT 1
+    pontos INTEGER
 );
 
 -- Tabela de Configuração
@@ -93,19 +92,12 @@ CREATE TABLE configuracao (
 
 ### 🎮 Sistema de Pontuação
 
-O sistema utiliza uma pontuação dinâmica baseada na dificuldade das questões:
-
-- **Fácil**: 5 pontos
-- **Médio**: 10 pontos
-- **Difícil**: 20 pontos
-- **Especialista**: 40 pontos
-- **Extremo**: 80 pontos
-
-A distribuição de questões por dificuldade varia conforme o nível selecionado:
+O sistema utiliza uma pontuação baseada na dificuldade das questões, conforme definido no campo `dificuldade` da tabela `perguntas`. A pontuação é acumulada por jogador e armazenada na tabela `jogadores`.
 
 #### Distribuição por Nível
 ```python
-DISTRIBUIÇÃO = {
+# Sistema de pesos para dificuldade
+pesos = {
     "facil": [50, 30, 15, 4, 1],     # Maior chance de questões fáceis
     "medio": [15, 40, 30, 10, 5],    # Distribuição equilibrada
     "dificil": [5, 15, 30, 30, 20]   # Maior chance de questões difíceis
@@ -250,13 +242,11 @@ def gerar_indices_aleatorios(self):
     indices = []
     questoes_por_dificuldade = {1: [], 2: [], 3: [], 4: [], 5: []}
     
-    # Complexidade: O(n), onde n é o número total de questões
     for i, questao in enumerate(self.questoes):
         dif = questao[8]  
         dif_normalizada = min(max(1, min(dif, 5)), 5)
         questoes_por_dificuldade[dif_normalizada].append(i)
     
-    # Complexidade: O(m), onde m é o número de questões desejadas
     while len(indices) < self.num_questoes:
         nivel = choices([1, 2, 3, 4, 5], weights=peso_atual)[0]
         if questoes_por_dificuldade[nivel]:
@@ -267,65 +257,21 @@ def gerar_indices_aleatorios(self):
     return indices
 ```
 
-**Complexidade Total**: O(n + m), onde:
-- n: número total de questões no banco
-- m: número de questões desejadas para o quiz
-
 #### Sistema de Pontuação
-O cálculo de pontuação utiliza um sistema ponderado baseado em:
-- Dificuldade da questão
-- Tempo de resposta
-- Sequência de acertos
-
 ```python
-def calcular_pontuacao(dificuldade, tempo_restante, sequencia_acertos):
-    pontos_base = {
-        "facil": 5,
-        "medio": 10,
-        "dificil": 20,
-        "especialista": 40,
-        "extremo": 80
-    }
-    
-    # Bônus por tempo (até 50% extra)
-    bonus_tempo = min(0.5, tempo_restante / tempo_total)
-    
-    # Bônus por sequência (até 100% extra)
-    bonus_sequencia = min(1.0, sequencia_acertos * 0.1)
-    
-    pontos = pontos_base[dificuldade]
-    pontos *= (1 + bonus_tempo + bonus_sequencia)
-    
-    return int(pontos)
+# Cálculo de pontuação baseado na dificuldade da questão
+pontos_totais = 0
+for indice_questao, resposta in respostas:
+    if resposta != -1:  
+        questao = questoes[indice_questao]
+        resposta_correta = int(questao[7])
+        if resposta == resposta_correta:
+            self.corretas += 1
+            pontos_totais += int(questao[8])
 ```
-
-**Complexidade**: O(1) - Operações constantes
 
 ### 📊 Estruturas de Dados
 
-#### Cache de Questões
-Para otimizar o acesso às questões durante o quiz:
-
-```python
-class CacheQuestoes:
-    def __init__(self, tamanho_max=100):
-        self.cache = OrderedDict()
-        self.tamanho_max = tamanho_max
-    
-    def get(self, id_questao):
-        if id_questao in self.cache:
-            questao = self.cache.pop(id_questao)
-            self.cache[id_questao] = questao
-            return questao
-        return None
-    
-    def put(self, id_questao, questao):
-        if id_questao in self.cache:
-            self.cache.pop(id_questao)
-        elif len(self.cache) >= self.tamanho_max:
-            self.cache.popitem(last=False)
-        self.cache[id_questao] = questao
-```
 
 **Complexidade**:
 - Acesso: O(1)
@@ -363,53 +309,6 @@ class CacheQuestoes:
 | Atualizar Ranking | O(log n) | O(1) | Atualização via índice B-tree |
 | Salvar Progresso | O(1) | O(1) | Operação única de update no banco |
 
-#### Detalhamento das Operações
-
-1. **Carregar Quiz - O(n)**
-   - Complexidade temporal O(n) devido à necessidade de percorrer todas as questões para distribuição
-   - Complexidade espacial O(m) para armazenar as m questões selecionadas
-   - Otimizações:
-     ```python
-     # Uso de índices para filtrar por dificuldade
-     SELECT * FROM perguntas WHERE dificuldade = ? LIMIT ?
-     ```
-
-2. **Selecionar Questão - O(1)**
-   - Acesso constante através do cache LRU
-   - Minimiza acessos ao banco de dados
-   - Implementação:
-     ```python
-     def get_questao(self, id_questao):
-         if questao := self.cache.get(id_questao):
-             return questao
-         return self.carregar_do_banco(id_questao)
-     ```
-
-3. **Calcular Pontuação - O(1)**
-   - Operações aritméticas simples com tempo constante
-   - Fórmula de pontuação:
-     ```python
-     pontuacao = base_pontos * (1 + bonus_tempo + bonus_sequencia)
-     ```
-
-4. **Atualizar Ranking - O(log n)**
-   - Utiliza índice B-tree para manter ranking ordenado
-   - Otimização via índice:
-     ```sql
-     CREATE INDEX idx_ranking ON jogadores (pontos DESC, acertos DESC);
-     ```
-
-5. **Salvar Progresso - O(1)**
-   - Operação única de update
-   - Batch updates para múltiplas estatísticas:
-     ```python
-     def salvar_progresso(self, jogador_id, pontos, acertos):
-         self.cursor.execute("""
-             UPDATE jogadores 
-             SET pontos = pontos + ?, acertos = acertos + ?
-             WHERE id = ?
-         """, (pontos, acertos, jogador_id))
-     ```
 
 #### Fatores de Complexidade
 
