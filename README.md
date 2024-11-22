@@ -185,10 +185,6 @@ graph TD
     M --> R[Número de Questões]
     M --> S[Tempo por Questão]
     
-    D --> T[Adicionar Jogador]
-    D --> U[Editar Jogador]
-    D --> V[Deletar Jogador]
-    D --> W[Zerar Pontuação]
     N --> X[Gerenciar Jogador]
     X --> Y[Adicionar Jogador]
     X --> Z[Editar Jogador]
