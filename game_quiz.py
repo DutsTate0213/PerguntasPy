@@ -232,38 +232,43 @@ class Questionario:
 
     # A função gerar_indices_aleatorios é implementada para selecionar questões aleatórias baseadas na dificuldade escolhida, usando um sistema de pesos
     def gerar_indices_aleatorios(self):
-        # Sistema de pesos para dificuldade usando dicionário
-        # Define a distribuição de probabilidade para seleção de questões baseada na dificuldade escolhida
-        # Cada lista representa os pesos para questões de nível 1 a 5 respectivamente
-        pesos = {
-            "facil": [50, 30, 15, 4, 1],     # Maior chance de questões fáceis
-            "medio": [15, 40, 30, 10, 5],     # Distribuição mais equilibrada
-            "dificil": [5, 15, 30, 30, 20]    # Maior chance de questões difíceis
+        # Mapeamento de pontuações para níveis de dificuldade
+        niveis_por_pontos = {
+            5: 1,    # 5 pontos = nível 1 (muito fácil)
+            10: 2,   # 10 pontos = nível 2 (fácil)
+            20: 3,   # 20 pontos = nível 3 (médio)
+            40: 4,   # 40 pontos = nível 4 (difícil)
+            80: 5    # 80 pontos = nível 5 (muito difícil)
         }
         
-        peso_atual = pesos[self.dificuldade]
+        # Define quais pontuações são permitidas para cada dificuldade
+        pontos_permitidos = {
+            "facil": [5, 10],           # Fácil: questões de 5 e 10 pontos
+            "medio": [10, 20, 40],       # Médio: questões de 10, 20 e 40 pontos
+            "dificil": [40, 80]          # Difícil: questões de 40 e 80 pontos
+        }
+        
         indices = []
-        questoes_por_dificuldade = {1: [], 2: [], 3: [], 4: [], 5: []}
+        questoes_disponiveis = []
         
+        # Filtra as questões pela pontuação permitida
         for i, questao in enumerate(self.questoes):
-            dif = questao[8]  
-            dif_normalizada = min(max(1, min(dif, 5)), 5)
-            questoes_por_dificuldade[dif_normalizada].append(i)
+            pontos = int(questao[8])  # Pontuação da questão
+            if pontos in pontos_permitidos[self.dificuldade]:
+                questoes_disponiveis.append(i)
         
-        while len(indices) < self.num_questoes:
-            nivel = choices([1, 2, 3, 4, 5], weights=peso_atual)[0]
-            
-            if questoes_por_dificuldade[nivel]:
-                indice = choice(questoes_por_dificuldade[nivel])
-                if indice not in indices:
-                    indices.append(indice)
-            else:
-                todos_indices = [idx for sublist in questoes_por_dificuldade.values() for idx in sublist]
-                if todos_indices:
-                    indice = choice(todos_indices)
-                    if indice not in indices:
-                        indices.append(indice)
-                    
+        # Se não houver questões suficientes, inclui questões do próximo nível
+        if len(questoes_disponiveis) < self.num_questoes:
+            print(f"Aviso: Não há questões suficientes para o nível {self.dificuldade}")
+            # Adiciona todas as questões como opção
+            questoes_disponiveis = list(range(len(self.questoes)))
+        
+        # Seleciona aleatoriamente as questões necessárias
+        while len(indices) < self.num_questoes and questoes_disponiveis:
+            indice = choice(questoes_disponiveis)
+            indices.append(indice)
+            questoes_disponiveis.remove(indice)
+        
         return indices
 
     # A função atualizar_questao é implementada para exibir a próxima questão e suas alternativas, além de reiniciar o temporizador
