@@ -14,11 +14,18 @@
 3. [Características](#-principais-características)
 4. [Começando](#-começando)
 5. [Estrutura do Projeto](#-estrutura-do-projeto)
-6. [Documentação Técnica](#-documentação-técnica)
-7. [Desenvolvimento](#-desenvolvimento)
-8. [Contribuindo](#-contribuindo)
-9. [Licença](#-licença)
-10. [Autores](#-autores)
+6. [Metodologia de Desenvolvimento](#-metodologia-de-desenvolvimento)
+   - [Fase 1: Análise](#fase-1-análise-)
+   - [Fase 2: Planejamento](#fase-2-planejamento-)
+   - [Fase 3: Desenho](#fase-3-desenho-)
+   - [Fase 4: Programação e Teste](#fase-4-programação-e-teste-)
+   - [Documentação e Avaliação](#documentação-e-avaliação-)
+   - [Apresentação e Conclusão](#apresentação-e-conclusão-)
+7. [Documentação Técnica](#-documentação-técnica)
+8. [Desenvolvimento](#-desenvolvimento)
+9. [Contribuindo](#-contribuindo)
+10. [Licença](#-licença)
+11. [Autores](#-autores)
 
 ## 📝 Descrição
 Sistema de quiz interativo desenvolvido em Python utilizando CustomTkinter para interface gráfica e SQLite para persistência de dados. O sistema permite gerenciar perguntas, jogadores e configurações do jogo, oferecendo uma experiência educativa e divertida.
@@ -48,7 +55,7 @@ Sistema de quiz interativo desenvolvido em Python utilizando CustomTkinter para 
   - Configurações ajustáveis (tempo, número de questões)
   - Sistema de ranking e pontuação
 
-## ✨ Principais Características
+## �� Principais Características
 
 ### 🎮 Sistema de Jogo
 - Interface gráfica moderna com CustomTkinter
@@ -155,7 +162,7 @@ pip install pandas
 graph TD
     A[Menu Principal] --> B[Iniciar Jogo]
     A --> C[Configurações]
-    A --> D[Gerenciar Jogador]
+    A --> D[Pontuação dos Jogadores]
     A --> E[Sair]
     
     B --> F[Seleção de Dificuldade]
@@ -178,10 +185,15 @@ graph TD
     M --> R[Número de Questões]
     M --> S[Tempo por Questão]
     
-    D & N --> T[Adicionar Jogador]
-    D & N --> U[Editar Jogador]
-    D & N --> V[Deletar Jogador]
-    D & N --> W[Zerar Pontuação]
+    D --> T[Adicionar Jogador]
+    D --> U[Editar Jogador]
+    D --> V[Deletar Jogador]
+    D --> W[Zerar Pontuação]
+    N --> X[Gerenciar Jogador]
+    X --> Y[Adicionar Jogador]
+    X --> Z[Editar Jogador]
+    X --> AA[Deletar Jogador]
+    X --> BB[Zerar Pontuação]
 ```
 
 ### ⚙️ Classes Principais
@@ -222,6 +234,81 @@ graph TD
 - Configura jogador atual
 - Gerencia configurações globais
 
+## 📚 Metodologia de Desenvolvimento
+
+### Fase 1: Análise ✓
+- [x] Problema definido: Sistema de quiz interativo com múltiplas dificuldades
+- [x] Análise dos desafios: Interface gráfica, persistência de dados, sistema de pontuação
+- [x] Modelo teórico: Sistema de pesos para distribuição de questões e cálculo de pontuação
+
+### Fase 2: Planejamento ✓
+- [x] Objetivos definidos: Sistema educativo, interativo e escalável
+- [x] Métricas estabelecidas: Tempo de resposta, precisão do usuário, distribuição de dificuldade
+- [x] Estratégia de resolução: Arquitetura MVC (Model-View-Controller) com CustomTkinter e SQLite
+- [x] Subproblemas identificados:
+  - Interface gráfica responsiva
+  - Sistema de pontuação dinâmico
+  - Gerenciamento de estado
+  - Persistência de dados
+
+### Fase 3: Desenho ✓
+- [x] Análise de complexidade:
+  - Acesso a questões: O(1)
+  - Distribuição por dificuldade: O(n)
+  - Cálculo de pontuação: O(1)
+- [x] Pontos críticos otimizados:
+  - Cache de questões
+  - Índices de banco de dados
+
+### Fase 4: Programação e Teste ✓
+- [x] Implementação:
+  - Código modular e orientado a objetos
+  - Padrões de projeto aplicados
+  - Documentação inline
+- [x] Testes realizados:
+  - Testes unitários
+  - Testes de integração
+  - Testes de interface
+- [x] Correções implementadas:
+  - Tratamento de exceções
+  - Validação de entrada
+  - Recuperação de erros
+
+### Documentação e Avaliação ✓
+- [x] Documentação técnica completa
+- [x] Análise de desempenho realizada
+
+### Apresentação e Conclusão ✓
+- [x] Melhorias futuras identificadas
+
+## 📚 Melhorias Futuras
+
+### 💯 Sistema de Pontuação Avançado
+- **Penalização por Erros**
+  - Fácil: -5 pontos
+  - Médio: -15 pontos
+  - Difícil: -30 pontos
+- **Justificativa**: Adicionar risco/recompensa ao selecionar dificuldades maiores
+
+### 🌐 Migração para API REST
+- **Benefícios**:
+  - Melhor escalabilidade
+  - Separação clara entre frontend e backend
+  - Cache mais eficiente
+
+### 🎮 Modos de Jogo Adicionais
+- **Modo Contra o Tempo**: Pontuação baseada no tempo de resposta
+- **Modo Torneio**: Eliminatórias com múltiplas rodadas
+
+### 📊 Analytics e Estatísticas
+- Gráficos de progresso do jogador
+- Análise de questões mais erradas/acertadas
+- Tempo médio por tipo de questão
+- Padrões de resposta por dificuldade
+
+### 🎨 Melhorias de Interface
+- Temas personalizáveis- Modo escuro/claro
+
 ## 📚 Documentação Técnica
 
 ### 🔍 Algoritmos Principais
@@ -230,31 +317,46 @@ graph TD
 O algoritmo de distribuição de questões utiliza um sistema de pesos para selecionar questões baseado na dificuldade escolhida:
 
 ```python
-def gerar_indices_aleatorios(self):
-    # Distribuição de probabilidade por nível
-    pesos = {
-        "facil": [50, 30, 15, 4, 1],     # Maior chance de questões fáceis
-        "medio": [15, 40, 30, 10, 5],    # Distribuição equilibrada
-        "dificil": [5, 15, 30, 30, 20]   # Maior chance de questões difíceis
-    }
-    
-    peso_atual = pesos[self.dificuldade]
-    indices = []
-    questoes_por_dificuldade = {1: [], 2: [], 3: [], 4: [], 5: []}
-    
-    for i, questao in enumerate(self.questoes):
-        dif = questao[8]  
-        dif_normalizada = min(max(1, min(dif, 5)), 5)
-        questoes_por_dificuldade[dif_normalizada].append(i)
-    
-    while len(indices) < self.num_questoes:
-        nivel = choices([1, 2, 3, 4, 5], weights=peso_atual)[0]
-        if questoes_por_dificuldade[nivel]:
-            indice = choice(questoes_por_dificuldade[nivel])
-            if indice not in indices:
-                indices.append(indice)
-                
-    return indices
+  # A função gerar_indices_aleatorios é implementada para selecionar questões aleatórias baseadas na dificuldade escolhida, usando um sistema de pesos
+  def gerar_indices_aleatorios(self):
+      # Mapeamento de pontuações para níveis de dificuldade
+      niveis_por_pontos = {
+          5: 1,    # 5 pontos = nível 1 (muito fácil)
+          10: 2,   # 10 pontos = nível 2 (fácil)
+          20: 3,   # 20 pontos = nível 3 (médio)
+          40: 4,   # 40 pontos = nível 4 (difícil)
+          80: 5    # 80 pontos = nível 5 (muito difícil)
+      }
+      
+      # Define quais pontuações são permitidas para cada dificuldade
+      pontos_permitidos = {
+          "facil": [5, 10],           # Fácil: questões de 5 e 10 pontos
+          "medio": [10, 20, 40],       # Médio: questões de 10, 20 e 40 pontos
+          "dificil": [40, 80]          # Difícil: questões de 40 e 80 pontos
+      }
+      
+      indices = []
+      questoes_disponiveis = []
+      
+      # Filtra as questões pela pontuação permitida
+      for i, questao in enumerate(self.questoes):
+          pontos = int(questao[8])  # Pontuação da questão
+          if pontos in pontos_permitidos[self.dificuldade]:
+              questoes_disponiveis.append(i)
+      
+      # Se não houver questões suficientes, inclui questões do próximo nível
+      if len(questoes_disponiveis) < self.num_questoes:
+          print(f"Aviso: Não há questões suficientes para o nível {self.dificuldade}")
+          # Adiciona todas as questões como opção
+          questoes_disponiveis = list(range(len(self.questoes)))
+      
+      # Seleciona aleatoriamente as questões necessárias
+      while len(indices) < self.num_questoes and questoes_disponiveis:
+          indice = choice(questoes_disponiveis)
+          indices.append(indice)
+          questoes_disponiveis.remove(indice)
+      
+      return indices
 ```
 
 #### Sistema de Pontuação
@@ -349,8 +451,10 @@ for indice_questao, resposta in respostas:
 
 ## 👥 Autores
 
-* **Anderson Gabriel da Silva Campos** - *Desenvolvedor Principal* - [SeuUsuario](https://github.com/DutsTate0213)
+* **Anderson Gabriel da Silva Campos** - *Desenvolvedor Principal* - [DutsTate0213](https://github.com/DutsTate0213)
+* **João Pedro Marques Boa Sorte Soares** - *Produção de Questões* 
+* **Eduardo Moura e Silva** - *Produção de Questões* 
 
 
 ---
-⌨️ com ❤️ por [seu-usuario](https://github.com/DutsTate0213) 😊
+⌨️ com ❤️ por [DutsTate0213](https://github.com/DutsTate0213) 😊
