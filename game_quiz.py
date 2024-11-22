@@ -1,34 +1,33 @@
 import sqlite3
 import customtkinter as ctk
 from tkinter import messagebox
-from random import randint
+from random import randint, choices, choice
 import time
 import os
-from config_global import *  # Importa todas as configurações globais
+from config_global import *
 
-
+# A classe MenuPrincipal é implementada para criar e gerenciar a interface principal do jogo, fornecendo acesso às diferentes funcionalidades através de botões
 class MenuPrincipal:
-
+    # A função __init__ é implementada para inicializar a janela principal e estabelecer conexão com o banco de dados
     def __init__(self, master):
         self.master = master
         self.master.configure(fg_color=COR_FUNDO)
         self.conexao = sqlite3.connect("database/quiz_game.db")
         self.cursor = self.conexao.cursor()
-
         self.interface_menu()
 
-
+    # A função interface_menu é implementada para criar e posicionar todos os elementos visuais do menu principal, incluindo título e botões de navegação
     def interface_menu(self):
-        # Limpar a tela
         for widget in self.master.winfo_children():
             widget.destroy()
             
-        # Título da página
         self.lb_titulo = ctk.CTkLabel(self.master, text="Quiz Game", 
                                     font=(FONTE_PADRAO, TAMANHO_FONTE_TITULO), text_color=COR_TEXTO)
         self.lb_titulo.place(relx=0.5, rely=0.2, anchor='center')
 
-        # Configuração dos botões
+        # Configuração padrão de botões usando dicionário
+        # Este padrão é usado para manter consistência visual e simplificar a criação de botões
+        # em toda a aplicação, evitando repetição de código e facilitando manutenção
         button_configs = {
             'width': BUTTON_WIDTH,
             'height': BUTTON_HEIGHT,
@@ -39,7 +38,6 @@ class MenuPrincipal:
             'corner_radius': CORNER_RADIUS
         }
 
-        # Botões principais
         self.btn_iniciar = ctk.CTkButton(self.master, text="Iniciar",
                                         command=self.iniciar_questionario,
                                         **button_configs)
@@ -60,64 +58,138 @@ class MenuPrincipal:
                                      **button_configs)
         self.btn_sair.place(relx=0.5, rely=0.7, anchor='center')
 
-
+    # A função iniciar_questionario é implementada para limpar a tela atual e iniciar a seleção de dificuldade do quiz
     def iniciar_questionario(self):
-        # Buscar configurações do banco de dados
-        self.cursor.execute("SELECT numero_questoes, tempo_questao FROM configuracao")
-        config = self.cursor.fetchone()
-        if config:
-            num_questoes, tempo_questao = config
-        else:
-            num_questoes, tempo_questao = 5, 30  # valores padrão
-            
         for widget in self.master.winfo_children():
             widget.destroy()
-        Questionario(self.master, num_questoes, tempo_questao)
+        SelecaoDificuldade(self.master)
 
+    # A função abrir_configuracao é implementada para limpar a tela atual e abrir a página de configurações do jogo
     def abrir_configuracao(self):
-        # Limpar a tela atual
         for widget in self.master.winfo_children():
             widget.destroy()
-        # Abrir a página de configuração
         from configuracao import Configuracao
         Configuracao(self.master)
-
     def __del__(self):
         if hasattr(self, 'conexao'):
             self.conexao.close()
-
+    # A função abrir_jogador é implementada para limpar a tela atual e abrir a página de seleção/gestão de jogadores
     def abrir_jogador(self):
         for widget in self.master.winfo_children():
             widget.destroy()
         PaginaJogador(self.master)
 
+    def __del__(self):
+        if hasattr(self, 'conexao'):
+            self.conexao.close()
+
+# A classe SelecaoDificuldade é implementada para permitir que o usuário escolha o nível de dificuldade do quiz antes de iniciá-lo
+class SelecaoDificuldade:
+    # A função __init__ é implementada para inicializar a interface de seleção de dificuldade e estabelecer conexão com o banco de dados
+    def __init__(self, master):
+        self.master = master
+        self.master.configure(fg_color=COR_FUNDO)
+        self.conexao = sqlite3.connect("database/quiz_game.db")
+        self.cursor = self.conexao.cursor()
+        
+        self.lb_titulo = ctk.CTkLabel(
+            self.master,
+            text="Selecione a Dificuldade",
+            font=(FONTE_PADRAO, TAMANHO_FONTE_TITULO),
+            text_color=COR_TEXTO
+        )
+        self.lb_titulo.place(relx=0.5, rely=0.2, anchor='center')
+
+        button_configs = {
+            'width': BUTTON_WIDTH,
+            'height': BUTTON_HEIGHT,
+            'fg_color': COR_BOTAO,
+            'text_color': COR_TEXTO_BOTAO,
+            'hover_color': COR_BOTAO_HOVER,
+            'font': (FONTE_PADRAO, TAMANHO_FONTE_NORMAL),
+            'corner_radius': CORNER_RADIUS
+        }
+
+        self.btn_facil = ctk.CTkButton(
+            self.master,
+            text="Fácil",
+            command=lambda: self.iniciar_quiz("facil"),
+            **button_configs
+        )
+        self.btn_facil.place(relx=0.5, rely=0.4, anchor='center')
+
+        self.btn_medio = ctk.CTkButton(
+            self.master,
+            text="Médio",
+            command=lambda: self.iniciar_quiz("medio"),
+            **button_configs
+        )
+        self.btn_medio.place(relx=0.5, rely=0.5, anchor='center')
+
+        self.btn_dificil = ctk.CTkButton(
+            self.master,
+            text="Difícil",
+            command=lambda: self.iniciar_quiz("dificil"),
+            **button_configs
+        )
+        self.btn_dificil.place(relx=0.5, rely=0.6, anchor='center')
+
+        self.btn_voltar = ctk.CTkButton(
+            self.master,
+            text="Voltar",
+            command=self.voltar_menu,
+            **button_configs
+        )
+        self.btn_voltar.place(relx=0.5, rely=0.7, anchor='center')
+
+    # A função iniciar_quiz é implementada para buscar as configurações do jogo e iniciar o questionário com a dificuldade selecionada
+    def iniciar_quiz(self, dificuldade):
+        self.cursor.execute("SELECT numero_questoes, tempo_questao FROM configuracao")
+        config = self.cursor.fetchone()
+        if config:
+            num_questoes, tempo_questao = config
+        else:
+            num_questoes, tempo_questao = 5, 30
+
+        for widget in self.master.winfo_children():
+            widget.destroy()
+        Questionario(self.master, num_questoes, tempo_questao, dificuldade)
+
+    # A função voltar_menu é implementada para retornar à tela do menu principal
+    def voltar_menu(self):
+        for widget in self.master.winfo_children():
+            widget.destroy()
+        MenuPrincipal(self.master)
+
+    def __del__(self):
+        if hasattr(self, 'conexao'):
+            self.conexao.close()
+
+# A classe Questionario é implementada para gerenciar a execução do quiz,  incluindo apresentação das questões, temporizador e coleta de respostas
 class Questionario:
-    def __init__(self, master, num_questoes=5, tempo_questao=30):
+    # A função __init__ é implementada para inicializar o questionário com as configurações específicas de número de questões, tempo e dificuldade
+    def __init__(self, master, num_questoes=5, tempo_questao=30, dificuldade="medio"):
         self.master = master
         self.master.configure(fg_color=COR_FUNDO)
         self.conexao = sqlite3.connect("database/quiz_game.db")
         self.cursor = self.conexao.cursor()
 
-        # Buscar questões do banco de dados
         self.cursor.execute("SELECT * FROM perguntas")
         self.questoes = self.cursor.fetchall()
 
-        #_ Criação da estrutura da pagina _#
         self.controle = 0
         self.respostas = []
         self.num_questoes = min(num_questoes, len(self.questoes))
         self.tempo_questao = tempo_questao
+        self.dificuldade = dificuldade
         
-        # Cria uma lista de índices aleatórios para as questões
         self.indices_questoes = self.gerar_indices_aleatorios()
 
-        # Interface
         self.lb_enunciado = ctk.CTkLabel(self.master, text="", text_color=COR_TEXTO, 
                                         wraplength=WINDOW_WIDTH-40, justify="left",
                                         font=(FONTE_PADRAO, TAMANHO_FONTE_NORMAL))
         self.lb_enunciado.place(x=20, y=20)
 
-        # Radio buttons para alternativas
         self.radio_var = ctk.IntVar(value=-1)
         self.radiob_alternativas = []
         for i in range(5):
@@ -127,7 +199,6 @@ class Questionario:
             self.radiob_alternativas.append(rb)
             rb.place(x=20, y=100 + i*50)
 
-        # Feedback e temporizador
         self.lb_feedback = ctk.CTkLabel(self.master, text="", text_color=COR_TEXTO,
                                       font=(FONTE_PADRAO, TAMANHO_FONTE_NORMAL))
         self.lb_feedback.place(x=20, y=WINDOW_HEIGHT-200)
@@ -139,7 +210,6 @@ class Questionario:
         self.timer = None
         self.is_running = True
 
-        # Botões
         button_configs = {
             'width': BUTTON_WIDTH,
             'height': BUTTON_HEIGHT,
@@ -158,22 +228,49 @@ class Questionario:
                                      command=self.sair, **button_configs)
         self.btn_sair.place(x=20, y=WINDOW_HEIGHT-20, anchor='sw')
 
-        # Atualiza a primeira questão
         self.atualizar_questao()
 
+    # A função gerar_indices_aleatorios é implementada para selecionar questões aleatórias baseadas na dificuldade escolhida, usando um sistema de pesos
     def gerar_indices_aleatorios(self):
+        # Sistema de pesos para dificuldade usando dicionário
+        # Define a distribuição de probabilidade para seleção de questões baseada na dificuldade escolhida
+        # Cada lista representa os pesos para questões de nível 1 a 5 respectivamente
+        pesos = {
+            "facil": [50, 30, 15, 4, 1],     # Maior chance de questões fáceis
+            "medio": [15, 40, 30, 10, 5],     # Distribuição mais equilibrada
+            "dificil": [5, 15, 30, 30, 20]    # Maior chance de questões difíceis
+        }
+        
+        peso_atual = pesos[self.dificuldade]
         indices = []
+        questoes_por_dificuldade = {1: [], 2: [], 3: [], 4: [], 5: []}
+        
+        for i, questao in enumerate(self.questoes):
+            dif = questao[8]  
+            dif_normalizada = min(max(1, min(dif, 5)), 5)
+            questoes_por_dificuldade[dif_normalizada].append(i)
+        
         while len(indices) < self.num_questoes:
-            indice = randint(0, len(self.questoes) - 1)
-            if indice not in indices:
-                indices.append(indice)
+            nivel = choices([1, 2, 3, 4, 5], weights=peso_atual)[0]
+            
+            if questoes_por_dificuldade[nivel]:
+                indice = choice(questoes_por_dificuldade[nivel])
+                if indice not in indices:
+                    indices.append(indice)
+            else:
+                todos_indices = [idx for sublist in questoes_por_dificuldade.values() for idx in sublist]
+                if todos_indices:
+                    indice = choice(todos_indices)
+                    if indice not in indices:
+                        indices.append(indice)
+                    
         return indices
 
+    # A função atualizar_questao é implementada para exibir a próxima questão e suas alternativas, além de reiniciar o temporizador
     def atualizar_questao(self):
         indice_questao = self.indices_questoes[self.controle]
         questao_atual = self.questoes[indice_questao]
         
-        # Estrutura da tabela perguntas: id, enunciado, alternativa_a, b, c, d, e, correta, dificuldade
         self.lb_enunciado.configure(text=f"{self.controle+1}. {questao_atual[1]}")
         
         alternativas = [questao_atual[2], questao_atual[3], questao_atual[4], 
@@ -187,6 +284,7 @@ class Questionario:
         self.btn_proximo.configure(text="Responder", command=self.pegar_resposta)
         self.iniciar_temporizador()
 
+    # A função pegar_resposta é implementada para verificar a resposta selecionada, fornecer feedback e atualizar o placar
     def pegar_resposta(self, tempo_esgotado=False):
         if self.timer:
             self.master.after_cancel(self.timer)
@@ -201,17 +299,14 @@ class Questionario:
                 self.iniciar_temporizador()
                 return
 
-        # Verifica a resposta
         indice_questao = self.indices_questoes[self.controle]
         questao_atual = self.questoes[indice_questao]
-        resposta_correta = int(questao_atual[7])  # Converte para inteiro
+        resposta_correta = int(questao_atual[7])  
         
         if resposta_selecionada != -1:
-            # Compara diretamente os índices
             if resposta_selecionada == resposta_correta:
                 self.lb_feedback.configure(text="Resposta correta!", text_color="green")
             else:
-                # Mostra a alternativa correta (soma 2 porque as alternativas começam no índice 2 da tupla)
                 self.lb_feedback.configure(text=f"Resposta incorreta. A resposta correta era: {questao_atual[resposta_correta + 2]}", 
                                          text_color="red")
         else:
@@ -221,6 +316,7 @@ class Questionario:
         self.respostas.append((indice_questao, resposta_selecionada))
         self.btn_proximo.configure(text="Próxima questão", command=self.proxima_questao)
 
+    # A função mostrar_resultados é implementada para exibir a tela final com o desempenho do jogador após todas as questões
     def mostrar_resultados(self):
         self.is_running = False
         if self.timer:
@@ -231,16 +327,14 @@ class Questionario:
             widget.destroy()
         PaginaResposta(self.master, self.respostas, self.questoes)
 
+    # A função sair é implementada para sair do quiz e retornar ao menu principal
     def sair(self):
-        self.is_running = False  # Marca o questionário como inativo
-        # Cancela o temporizador se ainda estiver ativo
+        self.is_running = False  
         if self.timer:
             self.master.after_cancel(self.timer)
             self.timer = None
-        # Fecha a conexão com o banco de dados
         if hasattr(self, 'conexao'):
             self.conexao.close()
-        # Limpa a janela e volta para o menu principal
         for widget in self.master.winfo_children():
             widget.destroy()
         MenuPrincipal(self.master)
@@ -249,18 +343,21 @@ class Questionario:
         if hasattr(self, 'conexao'):
             self.conexao.close()
 
+    # A função proxima_questao é implementada para avançar para a próxima questão
     def proxima_questao(self):
         self.controle += 1
         if self.controle < self.num_questoes:
             self.atualizar_questao()
         else:
-            self.is_running = False  # Marca o questionário como inativo
+            self.is_running = False  
             self.mostrar_resultados()
 
+    # A função iniciar_temporizador é implementada para iniciar o temporizador
     def iniciar_temporizador(self):
         self.progress_bar.set(0)
         self.atualizar_temporizador()
 
+    # A função atualizar_temporizador é implementada para atualizar o temporizador
     def atualizar_temporizador(self):
         if not self.is_running:
             return
@@ -271,43 +368,34 @@ class Questionario:
                 self.progress_bar.set(valor_atual + 0.1/self.tempo_questao)   
                 self.timer = self.master.after(100, self.atualizar_temporizador)  
             except Exception:
-                # Se ocorrer um erro ao atualizar a progress bar, vai simplismente ingnorar
                 pass
         else:
             self.pegar_resposta(tempo_esgotado=True)
+
+# A classe PaginaResposta é implementada para mostrar os resultados finais do quiz e atualizar a pontuação do jogador no banco de dados
 class PaginaResposta:
+    # A função __init__ é implementada para calcular e exibir os resultados, além de atualizar as estatísticas do jogador
     def __init__(self, master, respostas, questoes):
         self.master = master
         self.master.configure(fg_color=COR_FUNDO)
         self.conexao = sqlite3.connect("database/quiz_game.db")
         self.cursor = self.conexao.cursor()
 
-        # Calcula o número de respostas corretas
         self.corretas = 0
         pontos_totais = 0
         
         for indice_questao, resposta in respostas:
-            if resposta != -1:  # Verifica se uma pergunta foi respondida
+            if resposta != -1:  
                 questao = questoes[indice_questao]
                 resposta_correta = int(questao[7])
                 if resposta == resposta_correta:
                     self.corretas += 1
-                    dificuldade = questao[8]
-                    pontos = {
-                        1: 5,    # fácil
-                        2: 10,   # médio
-                        3: 20,   # difícil
-                        4: 40,   # especialista
-                        5: 80    # extremo
-                    }.get(dificuldade, 5)
-                    pontos_totais += pontos
+                    pontos_totais += int(questao[8])
 
-        # Busca o jogador atual da tabela configuração
         self.cursor.execute("SELECT jogador_atual FROM configuracao")
         jogador_atual_id = self.cursor.fetchone()[0]
         
         if jogador_atual_id:
-            # Atualiza pontuação apenas do jogador atual
             self.cursor.execute("""
                 UPDATE jogadores 
                 SET pontos = pontos + ?,
@@ -317,7 +405,6 @@ class PaginaResposta:
             """, (pontos_totais, self.corretas, len(respostas) - self.corretas, jogador_atual_id))
             self.conexao.commit()
 
-        # Interface
         self.lb_titulo = ctk.CTkLabel(
             self.master, 
             text="Resultados", 
@@ -326,9 +413,8 @@ class PaginaResposta:
         )
         self.lb_titulo.place(relx=0.5, rely=0.3, anchor='center')
 
-        # Texto do resultado
         resultado_texto = f"Você acertou {self.corretas} de {len(respostas)} questões!"
-        if jogador_atual_id:  # Se houver jogador, mostra os pontos
+        if jogador_atual_id:  
             resultado_texto += f"\nPontos ganhos: {pontos_totais}"
         
         self.lb_resultado = ctk.CTkLabel(
@@ -339,7 +425,6 @@ class PaginaResposta:
         )
         self.lb_resultado.place(relx=0.5, rely=0.5, anchor='center')
 
-        # Botão para voltar ao menu
         button_configs = {
             'width': BUTTON_WIDTH,
             'height': BUTTON_HEIGHT,
@@ -358,26 +443,26 @@ class PaginaResposta:
         )
         self.btn_voltar.place(relx=0.5, rely=0.7, anchor='center')
 
+    # A função voltar_menu é implementada para retornar ao menu principal após a visualização dos resultados
     def voltar_menu(self):
-        # Salva a posição atual da janela
         x = self.master.winfo_x()
         y = self.master.winfo_y()
         
-        # Fecha a conexão com o banco de dados
         if hasattr(self, 'conexao'):
             self.conexao.close()
             
-        # Limpa a tela atual
         for widget in self.master.winfo_children():
             widget.destroy()
             
-        # Volta para o menu principal
         MenuPrincipal(self.master) 
  
     def __del__(self):
         if hasattr(self, 'conexao'):
             self.conexao.close()
+
+# A classe PaginaJogador é implementada para gerenciar a seleção e visualização dos jogadores cadastrados
 class PaginaJogador:
+    # A função __init__ é implementada para inicializar a interface de gerenciamento de jogadores
     def __init__(self, master):
         self.master = master
         self.master.configure(fg_color=COR_FUNDO)
@@ -385,8 +470,8 @@ class PaginaJogador:
         self.cursor = self.conexao.cursor()
         self.interface_jogador()
 
+    # A função interface_jogador é implementada para criar a interface visual com a lista de jogadores e suas pontuações
     def interface_jogador(self):
-        # Título da página
         self.lb_titulo = ctk.CTkLabel(
             self.master, 
             text="Seleção de Jogador",
@@ -395,7 +480,6 @@ class PaginaJogador:
         )
         self.lb_titulo.place(relx=0.5, rely=0.1, anchor='center')
 
-        # Frame para lista de jogadores
         self.frame_jogadores = ctk.CTkScrollableFrame(
             self.master,
             width=400,
@@ -404,7 +488,6 @@ class PaginaJogador:
         )
         self.frame_jogadores.place(relx=0.5, rely=0.45, anchor='center')
 
-        # Cabeçalho da lista
         self.lb_header_nome = ctk.CTkLabel(
             self.frame_jogadores,
             text="Nome do Jogador",
@@ -421,20 +504,16 @@ class PaginaJogador:
         )
         self.lb_header_pontos.grid(row=0, column=1, padx=10, pady=5)
 
-        # Buscar jogadores do banco
         self.cursor.execute("SELECT id, nome, pontos FROM jogadores ORDER BY pontos DESC")
         jogadores = self.cursor.fetchall()
 
-        # Variável para armazenar o jogador selecionado
         self.jogador_var = ctk.IntVar()
 
-        # Buscar jogador atual
         self.cursor.execute("SELECT jogador_atual FROM configuracao")
         jogador_atual = self.cursor.fetchone()[0]
         if jogador_atual:
             self.jogador_var.set(jogador_atual)
 
-        # Listar jogadores
         for i, (id_jogador, nome, pontos) in enumerate(jogadores, start=1):
             ctk.CTkLabel(
                 self.frame_jogadores,
@@ -459,7 +538,6 @@ class PaginaJogador:
                 fg_color=COR_BOTAO
             ).grid(row=i, column=2, padx=10, pady=5)
 
-        # Botões
         button_configs = {
             'width': BUTTON_WIDTH,
             'height': BUTTON_HEIGHT,
@@ -478,11 +556,13 @@ class PaginaJogador:
         )
         self.btn_voltar.place(relx=0.5, rely=0.8, anchor='center')
 
+    # A função atualizar_jogador é implementada para salvar no banco de dados o jogador atualmente selecionado
     def atualizar_jogador(self):
         jogador_selecionado = self.jogador_var.get()
         self.cursor.execute("UPDATE configuracao SET jogador_atual = ?", (jogador_selecionado,))
         self.conexao.commit()
 
+    # A função voltar_menu é implementada para retornar ao menu principal
     def voltar_menu(self):
         if hasattr(self, 'conexao'):
             self.conexao.close()
@@ -497,10 +577,8 @@ class PaginaJogador:
 if __name__ == "__main__":
     app = ctk.CTk()
     app.geometry("1280x720")
-    # Obtém as dimensões da tela do computador
     largura_tela = app.winfo_screenwidth()
     altura_tela = app.winfo_screenheight()
-    # define a posicao da pagina 
     pos_x = (largura_tela // 2) - (WINDOW_WIDTH // 3)
     pos_y = (altura_tela // 3) - (WINDOW_HEIGHT // 3)
     app.geometry(f"{WINDOW_WIDTH}x{WINDOW_HEIGHT}+{pos_x}+{pos_y}")

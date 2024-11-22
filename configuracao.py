@@ -4,7 +4,10 @@ from tkinter import messagebox
 from PIL import Image
 from config_global import *  # Importa todas as configurações globais
 
+# A classe Configuracao é implementada para gerenciar a interface principal de configurações
+# e controlar a navegação entre diferentes páginas de configuração
 class Configuracao:
+    # A função __init__ é implementada para inicializar a interface e estabelecer conexão com o banco de dados
     def __init__(self, master):
         self.master = master
         self.master.configure(fg_color=COR_FUNDO)
@@ -13,6 +16,8 @@ class Configuracao:
         
         self.criar_interface()
 
+    # A função criar_interface é implementada para construir a interface gráfica principal
+    # e configurar os botões de navegação
     def criar_interface(self):
         # Limpar a tela
         for widget in self.master.winfo_children():
@@ -52,6 +57,8 @@ class Configuracao:
                                        **button_configs)
         self.btn_voltar.place(relx=0.5, rely=0.7, anchor='center')
 
+    # A função voltar_menu é implementada para retornar ao menu principal
+    # e limpar recursos utilizados
     def voltar_menu(self):
         # Fecha a conexão com o banco de dados
         if hasattr(self, 'conexao'):
@@ -76,7 +83,11 @@ class Configuracao:
         if hasattr(self, 'conexao'):
             self.conexao.close()
 
+# A classe PaginaQuestoes é implementada para gerenciar o CRUD de questões
+# e fornecer interface para edição do banco de questões
 class PaginaQuestoes:
+    # A função __init__ é implementada para inicializar a interface de questões
+    # e carregar questões existentes do banco de dados
     def __init__(self, master):
         self.master = master
         self.conexao = sqlite3.connect("database/quiz_game.db")
@@ -85,7 +96,7 @@ class PaginaQuestoes:
         self.cursor.execute("SELECT * FROM perguntas")
         self.questoes = self.cursor.fetchall()
 
-        # Configuração dos botões
+        # Configuração dos botões simplificada usando dicionário para centralizar estilos
         self.button_configs = {
             'width': 200,
             'height': 40,
@@ -102,6 +113,8 @@ class PaginaQuestoes:
             
         self.pagina_questoes()
 
+    # A função pagina_questoes é implementada para criar a interface de listagem de questões
+    # e configurar os controles de edição
     def pagina_questoes(self):
         # Frame principal
         main_frame = ctk.CTkFrame(self.master, fg_color="#2b2b2b")
@@ -196,6 +209,8 @@ class PaginaQuestoes:
                                   **self.button_configs)
         btn_voltar.grid(row=0, column=0, padx=10)
 
+    # A função adicionar_questao é implementada para criar interface de nova questão
+    # e configurar campos de entrada
     def adicionar_questao(self):
         for widget in self.master.winfo_children():
             widget.destroy()
@@ -280,6 +295,8 @@ class PaginaQuestoes:
                                     command=self.voltar, **self.button_configs)
         btn_cancelar.grid(row=0, column=0, padx=10)
 
+    # A função salvar_questao é implementada para validar e persistir nova questão no banco
+    # Simplificada usando dicionário para mapear dificuldade -> pontos
     def salvar_questao(self, enunciado, alternativa_a, alternativa_b, alternativa_c, 
                       alternativa_d, alternativa_e, resposta_certa):
         # Validar a resposta
@@ -312,6 +329,8 @@ class PaginaQuestoes:
         except sqlite3.Error as e:
             messagebox.showerror("Erro", f"Erro ao criar questão: {str(e)}")
 
+    # A função editar_questao é implementada para criar interface de edição
+    # e carregar dados da questão existente
     def editar_questao(self, numero):
         for widget in self.master.winfo_children():
             widget.destroy()
@@ -412,6 +431,7 @@ class PaginaQuestoes:
                                   ), **self.button_configs)
         btn_salvar.grid(row=0, column=2, padx=10)
 
+    # A função deletar_questao é implementada para remover questão do banco de dados
     def deletar_questao(self, numero):
         id_questao = self.questoes[numero][0]
         
@@ -424,6 +444,8 @@ class PaginaQuestoes:
         messagebox.showinfo("Sucesso", "Questão deletada com sucesso!")
         self.voltar()
 
+    # A função letra_para_numero é implementada para converter resposta em letra para índice
+    # Simplificada usando dicionário para mapear letra -> número
     def letra_para_numero(self, letra):
         mapeamento = {'A': 0, 'B': 1, 'C': 2, 'D': 3, 'E': 4}
         letra = letra.upper()
@@ -431,6 +453,7 @@ class PaginaQuestoes:
             return None
         return mapeamento[letra]
 
+    # A função validar_resposta é implementada para verificar formato da resposta
     def validar_resposta(self, resposta):
         if not resposta:
             messagebox.showerror("Erro", "Por favor, insira uma resposta.")
@@ -441,7 +464,6 @@ class PaginaQuestoes:
             messagebox.showerror("Erro", "A resposta deve ser uma letra entre A e E.")
             return False
         return True
-
     def salvar_questao(self, enunciado, alternativa_a, alternativa_b, alternativa_c, 
                       alternativa_d, alternativa_e, resposta_certa):
         # Validar a resposta
@@ -469,6 +491,7 @@ class PaginaQuestoes:
         messagebox.showinfo("Sucesso", "Questão criada com sucesso!")
         self.voltar()
     
+    # A função salvar_edicao é implementada para persistir alterações em questão existente
     def salvar_edicao(self, numero, enunciado, alternativa_a, alternativa_b, alternativa_c, 
                       alternativa_d, alternativa_e, resposta_certa, dificuldade):
         # Validar a resposta
@@ -500,11 +523,13 @@ class PaginaQuestoes:
         messagebox.showinfo("Sucesso", "Questão atualizada com sucesso!")
         self.voltar()
 
+    # A função voltar é implementada para limpar a tela e retornar à interface de listagem de questões
     def voltar(self):
         for widget in self.master.winfo_children():
             widget.destroy()
         self.pagina_questoes()
 
+    # A função voltar_configuracao é implementada para limpar a tela e retornar à interface principal de configurações
     def voltar_configuracao(self):
         if hasattr(self, 'conexao'):
             self.conexao.close()
@@ -514,6 +539,8 @@ class PaginaQuestoes:
         if hasattr(self, 'conexao'):
             self.conexao.close()
 
+    # A função get_pontos_por_dificuldade é implementada para converter nível em pontos
+    # Simplificada usando dicionário para mapear dificuldade -> pontos
     def get_pontos_por_dificuldade(self, dificuldade):
         pontos = {
             "facil": 5,
@@ -524,9 +551,12 @@ class PaginaQuestoes:
         }
         return pontos.get(dificuldade, 5)  # retorna 5 como padrão se a dificuldade não for encontrada
     
+    # A função verificar_dificuldade é implementada para validar nível de dificuldade
     def verificar_dificuldade(self, dificuldade):
         return dificuldade if dificuldade in ["facil", "medio", "dificil", "especialista", "extremo"] else "facil"
 
+    # A função pontos_para_dificuldade é implementada para converter pontos em nível
+    # Simplificada usando dicionário para mapear pontos -> dificuldade
     def pontos_para_dificuldade(self, pontos):
         mapeamento = {
             5: "facil",
@@ -537,7 +567,11 @@ class PaginaQuestoes:
         }
         return mapeamento.get(pontos, "facil")
 
+# A classe PaginaConfiguracao é implementada para gerenciar configurações do jogo
+# e persistir preferências do usuário
 class PaginaConfiguracao:
+    # A função __init__ é implementada para inicializar interface de configurações
+    # e carregar configurações existentes
     def __init__(self, master):
         self.master = master
         self.conexao = sqlite3.connect("database/quiz_game.db")
@@ -553,7 +587,7 @@ class PaginaConfiguracao:
             self.conexao.commit()
             self.config = (1, 5, 30)  # id, numero_questoes, tempo_questao
         
-        # Configuração dos botões
+        # Configuração dos botões simplificada usando dicionário para centralizar estilos
         self.button_configs = {
             'width': 200,
             'height': 40,
@@ -570,6 +604,8 @@ class PaginaConfiguracao:
             
         self.pagina_configuracao()
 
+    # A função pagina_configuracao é implementada para criar interface de configurações
+    # e campos de entrada
     def pagina_configuracao(self):
         # Frame principal
         frame = ctk.CTkFrame(self.master)
@@ -612,6 +648,7 @@ class PaginaConfiguracao:
         )
         btn_voltar.place(relx=0.4, rely=0.8, anchor="center")
 
+    # A função salvar_configuracao é implementada para validar e persistir configurações
     def salvar_configuracao(self, num_questoes, tempo_questao):
         try:
             if int(num_questoes) <= 0 or int(tempo_questao) <= 0:
@@ -635,6 +672,7 @@ class PaginaConfiguracao:
         except ValueError:
             messagebox.showerror("Erro", "Por favor, insira apenas números inteiros!")
 
+    # A função voltar_configuracao é implementada para limpar a tela e retornar à interface principal de configurações
     def voltar_configuracao(self):
         if hasattr(self, 'conexao'):
             self.conexao.close()
@@ -644,7 +682,11 @@ class PaginaConfiguracao:
         if hasattr(self, 'conexao'):
             self.conexao.close()
 
+# A classe PaginaJogador é implementada para gerenciar cadastro de jogadores
+# e suas pontuações
 class PaginaJogador:
+    # A função __init__ é implementada para inicializar interface de jogadores
+    # e carregar lista de jogadores
     def __init__(self, master):
         self.master = master
         self.conexao = sqlite3.connect("database/quiz_game.db")
@@ -653,6 +695,7 @@ class PaginaJogador:
         self.cursor.execute("SELECT * FROM jogadores")
         self.jogadores = self.cursor.fetchall()
 
+        # Configuração dos botões simplificada usando dicionário para centralizar estilos
         self.button_configs = {
             'width': 200,
             'height': 40,
@@ -668,6 +711,8 @@ class PaginaJogador:
             
         self.pagina_jogadores()
 
+    # A função pagina_jogadores é implementada para criar interface de listagem
+    # e controles de edição
     def pagina_jogadores(self):
         main_frame = ctk.CTkFrame(self.master, fg_color="#2b2b2b")
         main_frame.place(relx=0.5, rely=0.5, anchor="center", relwidth=0.8, relheight=0.8)
@@ -736,6 +781,7 @@ class PaginaJogador:
                                   **self.button_configs)
         btn_voltar.grid(row=0, column=0, padx=10)
 
+    # A função adicionar_jogador é implementada para criar interface de novo jogador
     def adicionar_jogador(self):
         for widget in self.master.winfo_children():
             widget.destroy()
@@ -764,6 +810,8 @@ class PaginaJogador:
                                     command=self.voltar, **self.button_configs)
         btn_cancelar.grid(row=0, column=0, padx=10)
 
+    # A função editar_jogador é implementada para criar interface de edição
+    # e carregar dados do jogador
     def editar_jogador(self, numero):
         for widget in self.master.winfo_children():
             widget.destroy()
@@ -806,6 +854,7 @@ class PaginaJogador:
                                   **self.button_configs)
         btn_salvar.grid(row=0, column=3, padx=10)
 
+    # A função salvar_jogador é implementada para validar e persistir novo jogador
     def salvar_jogador(self):
         nome = self.entrada_nome.get().strip()
         if not nome:
@@ -823,6 +872,7 @@ class PaginaJogador:
         messagebox.showinfo("Sucesso", "Jogador criado com sucesso!")
         self.voltar()
 
+    # A função salvar_edicao é implementada para persistir alterações em jogador
     def salvar_edicao(self, numero):
         nome = self.entrada_nome.get().strip()
         if not nome:
@@ -839,6 +889,7 @@ class PaginaJogador:
         messagebox.showinfo("Sucesso", "Jogador atualizado com sucesso!")
         self.voltar()
 
+    # A função zerar_pontuacao é implementada para resetar estatísticas do jogador
     def zerar_pontuacao(self, numero):
         id_jogador = self.jogadores[numero][0]
         self.cursor.execute("""
@@ -853,6 +904,7 @@ class PaginaJogador:
         messagebox.showinfo("Sucesso", "Pontuação zerada com sucesso!")
         self.voltar()
 
+    # A função deletar_jogador é implementada para remover jogador do banco de dados
     def deletar_jogador(self, numero):
         id_jogador = self.jogadores[numero][0]
         self.cursor.execute("DELETE FROM jogadores WHERE id=?", (id_jogador,))
@@ -864,11 +916,13 @@ class PaginaJogador:
         messagebox.showinfo("Sucesso", "Jogador deletado com sucesso!")
         self.voltar()
 
+    # A função voltar é implementada para limpar a tela e retornar à interface de listagem de jogadores
     def voltar(self):
         for widget in self.master.winfo_children():
             widget.destroy()
         self.pagina_jogadores()
 
+    # A função voltar_configuracao é implementada para limpar a tela e retornar à interface principal de configurações
     def voltar_configuracao(self):
         if hasattr(self, 'conexao'):
             self.conexao.close()
