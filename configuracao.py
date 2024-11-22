@@ -2,6 +2,7 @@ import sqlite3
 import customtkinter as ctk
 from tkinter import messagebox
 from PIL import Image
+from config_global import *  # Importa todas as configurações globais
 
 class Configuracao:
     def __init__(self, master):
@@ -47,8 +48,20 @@ class Configuracao:
         self.btn_jogador.place(relx=0.5, rely=0.6, anchor='center')
 
         self.btn_voltar = ctk.CTkButton(self.master, text="Voltar",
-                                        **button_configs)
+                                       command=self.voltar_menu,
+                                       **button_configs)
         self.btn_voltar.place(relx=0.5, rely=0.7, anchor='center')
+
+    def voltar_menu(self):
+        # Fecha a conexão com o banco de dados
+        if hasattr(self, 'conexao'):
+            self.conexao.close()
+        # Limpa a tela atual
+        for widget in self.master.winfo_children():
+            widget.destroy()
+        # Importa e abre o menu principal
+        from game_quiz import MenuPrincipal
+        MenuPrincipal(self.master)
 
     def abrir_questoes(self):
         PaginaQuestoes(self.master)
@@ -228,7 +241,7 @@ class PaginaQuestoes:
         label_dificuldade.grid(row=0, column=0, padx=(0, 10))
 
         # Variável para armazenar a seleção
-        self.dificuldade_var = ctk.StringVar(value="facil")
+        self.dificuldade_var = ctk.StringVar(value="outro")
 
         # Dicionário de dificuldades e pontos
         dificuldades = {
@@ -253,13 +266,51 @@ class PaginaQuestoes:
 
         btn_salvar = ctk.CTkButton(botoes_frame, text="Criar Questão", 
                                   command=lambda: self.salvar_questao(
-                                      *[getattr(self, f"entrada_{i}").get() for i in range(8)]
+                                      self.entrada_0.get(),  # enunciado
+                                      self.entrada_1.get(),  # alternativa A
+                                      self.entrada_2.get(),  # alternativa B
+                                      self.entrada_3.get(),  # alternativa C
+                                      self.entrada_4.get(),  # alternativa D
+                                      self.entrada_5.get(),  # alternativa E
+                                      self.entrada_6.get()   # resposta certa
                                   ), **self.button_configs)
         btn_salvar.grid(row=0, column=1, padx=10)
 
         btn_cancelar = ctk.CTkButton(botoes_frame, text="Cancelar", 
                                     command=self.voltar, **self.button_configs)
         btn_cancelar.grid(row=0, column=0, padx=10)
+
+    def salvar_questao(self, enunciado, alternativa_a, alternativa_b, alternativa_c, 
+                      alternativa_d, alternativa_e, resposta_certa):
+        # Validar a resposta
+        if not self.validar_resposta(resposta_certa):
+            return
+        
+        # Converter a letra em número
+        resposta_numero = self.letra_para_numero(resposta_certa)
+        
+        # Obter pontos baseado na dificuldade selecionada
+        pontos = self.get_pontos_por_dificuldade(self.dificuldade_var.get())
+
+        try:
+            self.cursor.execute("""
+                UPDATE perguntas 
+                SET pergunta=?, opcao_a=?, opcao_b=?, opcao_c=?, opcao_d=?, opcao_e=?, 
+                    resposta_certa=?, pontos=? 
+                WHERE id=?""", 
+                (enunciado, alternativa_a, alternativa_b, alternativa_c, 
+                 alternativa_d, alternativa_e, resposta_numero, pontos)
+            )
+            self.conexao.commit()
+            
+            self.cursor.execute("SELECT * FROM perguntas")
+            self.questoes = self.cursor.fetchall()
+            
+            messagebox.showinfo("Sucesso", "Questão criada com sucesso!")
+            self.voltar()
+            
+        except sqlite3.Error as e:
+            messagebox.showerror("Erro", f"Erro ao criar questão: {str(e)}")
 
     def editar_questao(self, numero):
         for widget in self.master.winfo_children():
@@ -311,8 +362,11 @@ class PaginaQuestoes:
         label_dificuldade = ctk.CTkLabel(dificuldade_frame, text="Nível de Dificuldade:")
         label_dificuldade.grid(row=0, column=0, padx=(0, 10))
 
-        # Variável para armazenar a seleção
-        self.dificuldade_var = ctk.StringVar()
+        # Pegar a dificuldade atual da questão baseada nos pontos
+        pontos_atuais = questao_atual[8] if len(questao_atual) > 8 else 5
+        dificuldade_atual = self.pontos_para_dificuldade(pontos_atuais)
+        
+        self.dificuldade_var = ctk.StringVar(value=dificuldade_atual)
 
         # Dicionário de dificuldades e pontos
         dificuldades = {
@@ -322,18 +376,6 @@ class PaginaQuestoes:
             "Especialista (40 pts)": "especialista",
             "Extremo (80 pts)": "extremo"
         }
-
-        # Mapear pontos para dificuldade
-        pontos_para_dificuldade = {
-            5: "facil",
-            10: "medio",
-            20: "dificil",
-            40: "especialista",
-            80: "extremo"
-        }
-        
-        # Definir valor inicial baseado nos pontos atuais
-        self.dificuldade_var.set(pontos_para_dificuldade.get(questao_atual[8], "facil"))
 
         # Criar radio buttons horizontalmente
         for i, (texto, valor) in enumerate(dificuldades.items()):
@@ -358,7 +400,15 @@ class PaginaQuestoes:
 
         btn_salvar = ctk.CTkButton(botoes_frame, text="Salvar", 
                                   command=lambda: self.salvar_edicao(
-                                      numero, *[getattr(self, f"entrada_{i}").get() for i in range(8)]
+                                      numero, 
+                                      self.entrada_0.get(),  # enunciado
+                                      self.entrada_1.get(),  # alternativa A
+                                      self.entrada_2.get(),  # alternativa B
+                                      self.entrada_3.get(),  # alternativa C
+                                      self.entrada_4.get(),  # alternativa D
+                                      self.entrada_5.get(),  # alternativa E
+                                      self.entrada_6.get(),  # resposta certa
+                                      self.dificuldade_var.get()  # dificuldade
                                   ), **self.button_configs)
         btn_salvar.grid(row=0, column=2, padx=10)
 
@@ -420,7 +470,7 @@ class PaginaQuestoes:
         self.voltar()
     
     def salvar_edicao(self, numero, enunciado, alternativa_a, alternativa_b, alternativa_c, 
-                      alternativa_d, alternativa_e, resposta_certa):
+                      alternativa_d, alternativa_e, resposta_certa, dificuldade):
         # Validar a resposta
         if not self.validar_resposta(resposta_certa):
             return
@@ -429,7 +479,8 @@ class PaginaQuestoes:
         resposta_numero = self.letra_para_numero(resposta_certa)
         
         # Obter pontos baseado na dificuldade selecionada
-        pontos = self.get_pontos_por_dificuldade(self.dificuldade_var.get())
+        pontos = self.get_pontos_por_dificuldade(dificuldade)
+        print(pontos)
         
         id_questao = self.questoes[numero][0]
         
@@ -472,6 +523,19 @@ class PaginaQuestoes:
             "extremo": 80
         }
         return pontos.get(dificuldade, 5)  # retorna 5 como padrão se a dificuldade não for encontrada
+    
+    def verificar_dificuldade(self, dificuldade):
+        return dificuldade if dificuldade in ["facil", "medio", "dificil", "especialista", "extremo"] else "facil"
+
+    def pontos_para_dificuldade(self, pontos):
+        mapeamento = {
+            5: "facil",
+            10: "medio",
+            20: "dificil",
+            40: "especialista",
+            80: "extremo"
+        }
+        return mapeamento.get(pontos, "facil")
 
 class PaginaConfiguracao:
     def __init__(self, master):
@@ -818,19 +882,6 @@ if __name__ == "__main__":
     app = ctk.CTk()
     app.geometry("1280x720")
     app.title("Configuração")
-    
-    FONTE_PADRAO = "Arial"
-    TAMANHO_FONTE_TITULO = 24
-    TAMANHO_FONTE_TEXTO = 16
-    TAMANHO_FONTE_NORMAL = 14
-    COR_TEXTO = "white"
-    COR_FUNDO = "#242424"
-    COR_BOTAO = "#333333"
-    COR_TEXTO_BOTAO = "white"
-    COR_BOTAO_HOVER = "#444444"
-    BUTTON_WIDTH = 200
-    BUTTON_HEIGHT = 40
-    CORNER_RADIUS = 10
     
     configuracao = Configuracao(app)
     app.mainloop()
