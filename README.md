@@ -54,6 +54,54 @@ Sistema de quiz interativo desenvolvido em Python utilizando CustomTkinter para 
   - Configurações ajustáveis (tempo, número de questões)
   - Sistema de ranking e pontuação
 
+## 📚 Metodologia de Desenvolvimento(Check List)
+
+### Fase 1: Análise ✓
+- [x] Problema definido: Sistema de quiz interativo com múltiplas dificuldades
+- [x] Análise dos desafios: Interface gráfica, persistência de dados, sistema de pontuação
+- [x] Modelo teórico: Sistema de pesos para distribuição de questões e cálculo de pontuação
+
+### Fase 2: Planejamento ✓
+- [x] Objetivos definidos: Sistema educativo, interativo e escalável
+- [x] Métricas estabelecidas: Tempo de resposta, precisão do usuário, distribuição de dificuldade
+- [x] Estratégia de resolução: Arquitetura MVC (Model-View-Controller) com CustomTkinter e SQLite
+- [x] Subproblemas identificados:
+  - Interface gráfica responsiva
+  - Sistema de pontuação dinâmico
+  - Gerenciamento de estado
+  - Persistência de dados
+
+### Fase 3: Desenho ✓
+- [x] Análise de complexidade:
+  - Acesso a questões: O(1)
+  - Distribuição por dificuldade: O(n)
+  - Cálculo de pontuação: O(1)
+- [x] Pontos críticos otimizados:
+  - Cache de questões
+  - Índices de banco de dados
+
+### Fase 4: Programação e Teste ✓
+- [x] Implementação:
+  - Código modular e orientado a objetos
+  - Padrões de projeto aplicados
+  - Documentação inline
+- [x] Testes realizados:
+  - Testes unitários
+  - Testes de integração
+  - Testes de interface
+- [x] Correções implementadas:
+  - Tratamento de exceções
+  - Validação de entrada
+  - Recuperação de erros
+
+### Documentação e Avaliação ✓
+- [x] Documentação técnica completa
+- [x] Análise de desempenho realizada
+
+### Apresentação e Conclusão ✓
+- [x] Melhorias futuras identificadas
+
+
 ## �� Principais Características
 
 ### 🎮 Sistema de Jogo
@@ -94,21 +142,11 @@ CREATE TABLE configuracao (
     jogador_atual INTEGER,
     FOREIGN KEY(jogador_atual) REFERENCES jogadores(id)
 );
-```
+
 
 ### 🎮 Sistema de Pontuação
 
 O sistema utiliza uma pontuação baseada na dificuldade das questões, conforme definido no campo `dificuldade` da tabela `perguntas`. A pontuação é acumulada por jogador e armazenada na tabela `jogadores`.
-
-#### Distribuição por Nível
-```python
-# Sistema de pesos para dificuldade
-pesos = {
-    "facil": [50, 30, 15, 4, 1],     # Maior chance de questões fáceis
-    "medio": [15, 40, 30, 10, 5],    # Distribuição equilibrada
-    "dificil": [5, 15, 30, 30, 20]   # Maior chance de questões difíceis
-}
-```
 
 ## 🚀 Começando
 
@@ -229,52 +267,6 @@ graph TD
 - Configura jogador atual
 - Gerencia configurações globais
 
-## 📚 Metodologia de Desenvolvimento
-
-### Fase 1: Análise ✓
-- [x] Problema definido: Sistema de quiz interativo com múltiplas dificuldades
-- [x] Análise dos desafios: Interface gráfica, persistência de dados, sistema de pontuação
-- [x] Modelo teórico: Sistema de pesos para distribuição de questões e cálculo de pontuação
-
-### Fase 2: Planejamento ✓
-- [x] Objetivos definidos: Sistema educativo, interativo e escalável
-- [x] Métricas estabelecidas: Tempo de resposta, precisão do usuário, distribuição de dificuldade
-- [x] Estratégia de resolução: Arquitetura MVC (Model-View-Controller) com CustomTkinter e SQLite
-- [x] Subproblemas identificados:
-  - Interface gráfica responsiva
-  - Sistema de pontuação dinâmico
-  - Gerenciamento de estado
-  - Persistência de dados
-
-### Fase 3: Desenho ✓
-- [x] Análise de complexidade:
-  - Acesso a questões: O(1)
-  - Distribuição por dificuldade: O(n)
-  - Cálculo de pontuação: O(1)
-- [x] Pontos críticos otimizados:
-  - Cache de questões
-  - Índices de banco de dados
-
-### Fase 4: Programação e Teste ✓
-- [x] Implementação:
-  - Código modular e orientado a objetos
-  - Padrões de projeto aplicados
-  - Documentação inline
-- [x] Testes realizados:
-  - Testes unitários
-  - Testes de integração
-  - Testes de interface
-- [x] Correções implementadas:
-  - Tratamento de exceções
-  - Validação de entrada
-  - Recuperação de erros
-
-### Documentação e Avaliação ✓
-- [x] Documentação técnica completa
-- [x] Análise de desempenho realizada
-
-### Apresentação e Conclusão ✓
-- [x] Melhorias futuras identificadas
 
 ## 📚 Melhorias Futuras
 
