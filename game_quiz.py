@@ -1,3 +1,39 @@
+"""
+Quiz Game - Sistema de Quiz Interativo
+====================================
+
+Este projeto implementa um sistema de quiz interativo usando Python, CustomTkinter para interface gráfica 
+e SQLite para persistência de dados. O sistema oferece diferentes níveis de dificuldade, sistema de 
+pontuação dinâmico e gerenciamento completo de jogadores e questões.
+
+Características Principais:
+-------------------------
+- Múltiplos níveis de dificuldade (Fácil, Médio, Difícil)
+- Gerenciamento de jogadores e histórico de pontuações
+- Temporizador visual para questões
+- Configurações personalizáveis (tempo, número de questões)
+
+Estrutura do Sistema:
+-------------------
+- MenuPrincipal: Interface inicial e navegação
+- Questionario: Implementa a lógica do quiz e pontuação
+- PaginaResposta: Exibe resultados e atualiza estatísticas
+- PaginaJogador: Gerencia cadastro e pontuações
+- SelecaoDificuldade: Controla níveis de dificuldade
+
+Sistema de Pontuação:
+-------------------
+- Fácil: questões de 5 e 10 pontos
+- Médio: questões de 10, 20 e 40 pontos
+- Difícil: questões de 40 e 80 pontos
+
+Desenvolvido por:
+---------------
+- Anderson Gabriel da Silva Campos
+- João Pedro Marques Boa Sorte Soares
+- Eduardo Moura e Silva
+"""
+
 import sqlite3
 import customtkinter as ctk
 from tkinter import messagebox
@@ -25,9 +61,25 @@ class MenuPrincipal:
                                     font=(FONTE_PADRAO, TAMANHO_FONTE_TITULO), text_color=COR_TEXTO)
         self.lb_titulo.place(relx=0.5, rely=0.2, anchor='center')
 
-        # Configuração padrão de botões usando dicionário
-        # Este padrão é usado para manter consistência visual e simplificar a criação de botões
-        # em toda a aplicação, evitando repetição de código e facilitando manutenção
+        self.lb_desenvolvido = ctk.CTkLabel(
+            self.master,
+            text="Desenvolvido por:",
+            font=(FONTE_PADRAO, TAMANHO_FONTE_NORMAL, "bold"),
+            text_color=COR_TEXTO
+        )
+        self.lb_desenvolvido.place(relx=0.95, rely=0.85, anchor='se')
+
+
+        self.lb_nomes = ctk.CTkLabel(
+            self.master,
+            text="Anderson Gabriel\nJoão Pedro\nEduardo Moura",
+            font=(FONTE_PADRAO, TAMANHO_FONTE_NORMAL),  
+            text_color=COR_TEXTO,
+            justify="right"
+        )
+        self.lb_nomes.place(relx=0.95, rely=0.95, anchor='se')
+
+        # Configuração padrão de botões usando dicionário 
         button_configs = {
             'width': BUTTON_WIDTH,
             'height': BUTTON_HEIGHT,

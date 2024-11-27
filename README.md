@@ -398,17 +398,6 @@ for indice_questao, resposta in respostas:
   - Determina tamanho do cache
   - Influencia memória utilizada
 
-
-### 🔄 Gerenciamento de Estado
-
-1. **Padrão Observer**
-   - Atualização reativa da interface
-   - Propagação de eventos
-
-2. **Máquina de Estados**
-   - Controle de fluxo do quiz
-   - Transições validadas
-
 ## 🛠️ Desenvolvimento
 
 ### 🔧 Configuração do Ambiente de Desenvolvimento
