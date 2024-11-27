@@ -1,4 +1,4 @@
-# 🎮 Sistema de Quiz Game
+# 🎮 Quiz Game
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.8+-blue.svg" alt="Python Version">
@@ -13,7 +13,7 @@
 3. [Características](#-principais-características)
 4. [Começando](#-começando)
 5. [Estrutura do Projeto](#-estrutura-do-projeto)
-6. [Metodologia de Desenvolvimento](#-metodologia-de-desenvolvimento)
+6. [Metodologia de Desenvolvimento(Check List)](#-metodologia-de-desenvolvimento)
    - [Fase 1: Análise](#fase-1-análise-)
    - [Fase 2: Planejamento](#fase-2-planejamento-)
    - [Fase 3: Desenho](#fase-3-desenho-)
@@ -36,8 +36,8 @@ Sistema de quiz interativo desenvolvido em Python utilizando CustomTkinter para 
   - Diferentes níveis de dificuldade
   - Sistema de pontuação dinâmico
 
-- 🎨 Implementar interface gráfica moderna e intuitiva
-  - Design moderno com CustomTkinter
+- 🎨 Implementar interface gráfica intuitiva
+  - Design com CustomTkinter
   - Navegação fluida entre telas
   - Feedback visual das ações
   - Temporizador visual para questões
@@ -56,23 +56,26 @@ Sistema de quiz interativo desenvolvido em Python utilizando CustomTkinter para 
 
 ## 📚 Metodologia de Desenvolvimento(Check List)
 
-### Fase 1: Análise ✓
-- [x] Problema definido: Sistema de quiz interativo com múltiplas dificuldades
-- [x] Análise dos desafios: Interface gráfica, persistência de dados, sistema de pontuação
-- [x] Modelo teórico: Sistema de pesos para distribuição de questões e cálculo de pontuação
+### Fase 1: Análise
+- [x] Problema selecionado e definido claramente: Sistema de quiz interativo com múltiplas dificuldades
+- [x] Compreensão aprofundada dos desafios: Interface gráfica, persistência de dados, sistema de pontuação
+- [x] Modelo teórico desenvolvido: Sistema de pesos para distribuição de questões e cálculo de pontuação
 
-### Fase 2: Planejamento ✓
-- [x] Objetivos definidos: Sistema educativo, interativo e escalável
+### Fase 2: Planejamento
+- [x] Objetivos definidos com clareza: Sistema educativo, interativo e escalável
 - [x] Métricas estabelecidas: Tempo de resposta, precisão do usuário, distribuição de dificuldade
-- [x] Estratégia de resolução: Arquitetura MVC (Model-View-Controller) com CustomTkinter e SQLite
+- [x] Estratégia de resolução proposta: Arquitetura MVC com CustomTkinter e SQLite
 - [x] Subproblemas identificados:
   - Interface gráfica responsiva
   - Sistema de pontuação dinâmico
   - Gerenciamento de estado
   - Persistência de dados
+- [x] Estrutura geral esboçada
+- [x] Casos limite identificados
+- [x] Análise teórica de correção realizada
 
-### Fase 3: Desenho ✓
-- [x] Análise de complexidade:
+### Fase 3: Desenho
+- [x] Análise de complexidade realizada:
   - Acesso a questões: O(1)
   - Distribuição por dificuldade: O(n)
   - Cálculo de pontuação: O(1)
@@ -80,9 +83,9 @@ Sistema de quiz interativo desenvolvido em Python utilizando CustomTkinter para 
   - Cache de questões
   - Índices de banco de dados
 
-### Fase 4: Programação e Teste ✓
-- [x] Implementação:
-  - Código modular e orientado a objetos
+### Fase 4: Programação e Teste
+- [x] Algoritmo implementado em código:
+  - Código modular
   - Padrões de projeto aplicados
   - Documentação inline
 - [x] Testes realizados:
@@ -94,15 +97,17 @@ Sistema de quiz interativo desenvolvido em Python utilizando CustomTkinter para 
   - Validação de entrada
   - Recuperação de erros
 
-### Documentação e Avaliação ✓
+### Documentação
 - [x] Documentação técnica completa
-- [x] Análise de desempenho realizada
+- [x] Documentação revisada
+- [x] Avaliação de eficácia realizada
 
-### Apresentação e Conclusão ✓
+### Apresentação e Conclusão do Projeto
+- [x] Conclusões documentadas
 - [x] Melhorias futuras identificadas
 
 
-## �� Principais Características
+##  Principais Características
 
 ### 🎮 Sistema de Jogo
 - Interface gráfica moderna com CustomTkinter
@@ -140,9 +145,9 @@ CREATE TABLE configuracao (
     numero_questoes INTEGER DEFAULT 5,
     tempo_questao INTEGER DEFAULT 30,
     jogador_atual INTEGER,
-    FOREIGN KEY(jogador_atual) REFERENCES jogadores(id)
+    FOREIGN KEY(jogador_atual) REFERENCES jogadores(id) 
 );
-
+```
 
 ### 🎮 Sistema de Pontuação
 
@@ -295,55 +300,39 @@ graph TD
 
 ### 🎨 Melhorias de Interface
 - Temas personalizáveis- Modo escuro/claro
+- Melhorias de design
+- Adicionar efeitos sonoros
 
 ## 📚 Documentação Técnica
 
 ### 🔍 Algoritmos Principais
 
-#### Distribuição de Questões
-O algoritmo de distribuição de questões utiliza um sistema de pesos para selecionar questões baseado na dificuldade escolhida:
+#### Sistema de Distribuição de Questões
+O algoritmo de distribuição de questões utiliza um sistema de seleção baseado em três níveis de dificuldade, cada um com suas respectivas faixas de pontuação:
+
+- **Fácil**: Seleciona questões de 5 e 10 pontos
+  - Ideal para iniciantes
+  - Foco em questões básicas
+
+- **Médio**: Seleciona questões de 10, 20 e 40 pontos
+  - Maior variedade de pontuações
+  - Inclui algumas questões mais desafiadoras
+  - Compartilha questões de 10 pontos com o nível fácil
+
+- **Difícil**: Seleciona questões de 40 e 80 pontos
+  - Focado em questões de alta pontuação
+  - Compartilha questões de 40 pontos com o nível médio
+  - Maior recompensa de pontos
+
+O sistema possui sobreposição intencional entre níveis adjacentes para garantir uma transição suave de dificuldade. Se não houver questões suficientes no nível selecionado, o sistema automaticamente incluirá questões de outros níveis para completar o quiz.
 
 ```python
-  # A função gerar_indices_aleatorios é implementada para selecionar questões aleatórias baseadas na dificuldade escolhida, usando um sistema de pesos
-  def gerar_indices_aleatorios(self):
-      # Mapeamento de pontuações para níveis de dificuldade
-      niveis_por_pontos = {
-          5: 1,    # 5 pontos = nível 1 (muito fácil)
-          10: 2,   # 10 pontos = nível 2 (fácil)
-          20: 3,   # 20 pontos = nível 3 (médio)
-          40: 4,   # 40 pontos = nível 4 (difícil)
-          80: 5    # 80 pontos = nível 5 (muito difícil)
-      }
-      
-      # Define quais pontuações são permitidas para cada dificuldade
-      pontos_permitidos = {
-          "facil": [5, 10],           # Fácil: questões de 5 e 10 pontos
-          "medio": [10, 20, 40],       # Médio: questões de 10, 20 e 40 pontos
-          "dificil": [40, 80]          # Difícil: questões de 40 e 80 pontos
-      }
-      
-      indices = []
-      questoes_disponiveis = []
-      
-      # Filtra as questões pela pontuação permitida
-      for i, questao in enumerate(self.questoes):
-          pontos = int(questao[8])  # Pontuação da questão
-          if pontos in pontos_permitidos[self.dificuldade]:
-              questoes_disponiveis.append(i)
-      
-      # Se não houver questões suficientes, inclui questões do próximo nível
-      if len(questoes_disponiveis) < self.num_questoes:
-          print(f"Aviso: Não há questões suficientes para o nível {self.dificuldade}")
-          # Adiciona todas as questões como opção
-          questoes_disponiveis = list(range(len(self.questoes)))
-      
-      # Seleciona aleatoriamente as questões necessárias
-      while len(indices) < self.num_questoes and questoes_disponiveis:
-          indice = choice(questoes_disponiveis)
-          indices.append(indice)
-          questoes_disponiveis.remove(indice)
-      
-      return indices
+# Exemplo de distribuição por nível
+distribuicao = {
+    "facil": [5, 10],           # Questões mais simples
+    "medio": [10, 20, 40],      # Questões intermediárias
+    "dificil": [40, 80]         # Questões avançadas
+}
 ```
 
 #### Sistema de Pontuação
@@ -392,10 +381,10 @@ for indice_questao, resposta in respostas:
 
 | Operação | Complexidade Temporal | Complexidade Espacial | Descrição |
 |----------|---------------------|---------------------|------------|
-| Carregar Quiz | O(n) | O(m) | Carrega questões do banco e aplica distribuição por dificuldade |
-| Selecionar Questão | O(1) | O(1) | Acesso direto via cache LRU |
+| Carregar Quiz | O(n) | O(m) | Carrega questões do banco e filtra por dificuldade |
+| Selecionar Questão | O(1) | O(1) | Acesso direto por índice |
 | Calcular Pontuação | O(1) | O(1) | Cálculo baseado em fórmula constante |
-| Atualizar Ranking | O(log n) | O(1) | Atualização via índice B-tree |
+| Atualizar Ranking | O(1) | O(1) | Atualização direta no banco de dados |
 | Salvar Progresso | O(1) | O(1) | Operação única de update no banco |
 
 
@@ -442,6 +431,11 @@ for indice_questao, resposta in respostas:
 * **João Pedro Marques Boa Sorte Soares** - *Produção de Questões* 
 * **Eduardo Moura e Silva** - *Produção de Questões* 
 
+## 📚 Referências
 
----
-⌨️ com ❤️ por [DutsTate0213](https://github.com/DutsTate0213) 😊
+1. [Python Documentation](https://docs.python.org/3/)
+2. [CustomTkinter Documentation](https://customtkinter.tomschimansky.com/)
+3. [SQLite Documentation](https://www.sqlite.org/docs.html)
+4. [Pillow (PIL) Documentation](https://pillow.readthedocs.io/en/stable/)
+5. [Pandas Documentation](https://pandas.pydata.org/docs/)
+6. [Tkinter Documentation](https://docs.python.org/3/library/tkinter.html)
