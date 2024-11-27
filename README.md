@@ -10,21 +10,15 @@
 ## 📑 Índice
 1. [Descrição](#-descrição)
 2. [Objetivos](#-objetivos-do-projeto)
-3. [Características](#-principais-características)
-4. [Começando](#-começando)
-5. [Estrutura do Projeto](#-estrutura-do-projeto)
-6. [Metodologia de Desenvolvimento(Check List)](#-metodologia-de-desenvolvimento)
-   - [Fase 1: Análise](#fase-1-análise-)
-   - [Fase 2: Planejamento](#fase-2-planejamento-)
-   - [Fase 3: Desenho](#fase-3-desenho-)
-   - [Fase 4: Programação e Teste](#fase-4-programação-e-teste-)
-   - [Documentação e Avaliação](#documentação-e-avaliação-)
-   - [Apresentação e Conclusão](#apresentação-e-conclusão-)
+3. [Metodologia de Desenvolvimento(Check List)](#-metodologia-de-desenvolvimentocheck-list)
+4. [Características](#principais-características)
+5. [Começando](#-começando)
+6. [Estrutura do Projeto](#-estrutura-do-projeto)
 7. [Documentação Técnica](#-documentação-técnica)
-8. [Desenvolvimento](#-desenvolvimento)
+8. [Desenvolvimento](#%EF%B8%8F-desenvolvimento)
 9. [Contribuindo](#-contribuindo)
-10. [Licença](#-licença)
-11. [Autores](#-autores)
+10. [Autores](#-autores) 
+11. [Referências](#-referências)
 
 ## 📝 Descrição
 Sistema de quiz interativo desenvolvido em Python utilizando CustomTkinter para interface gráfica e SQLite para persistência de dados. O sistema permite gerenciar perguntas, jogadores e configurações do jogo, oferecendo uma experiência educativa e divertida.
